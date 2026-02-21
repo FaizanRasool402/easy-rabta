@@ -60,7 +60,7 @@ export default function VideoP() {
                 preload="metadata"
               >
                 <source
-                  src="/images/13055489_3840_2160_25fps.mp4"
+                  src="/images/12692911_1920_1080_60fps.mp4"
                   type="video/mp4"
                 />
               </video>
