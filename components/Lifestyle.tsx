@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function Lifestyle() {
   return (
     <section className="py-12 sm:py-16 bg-gradient-to-br from-emerald-50 to-teal-50">
@@ -11,19 +13,13 @@ export default function Lifestyle() {
           </p>
         </div>
         <div className="overflow-hidden bg-white rounded-lg shadow-md border border-gray-100">
-          <video
+          <Image
+            src="/images/Islamabadd.jpg"
+            alt="Islamabad Neighborhood"
+            width={1920}
+            height={1080}
             className="w-full h-48 sm:h-64 md:h-80 object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-          >
-            <source
-              src="/images/12692911_1920_1080_60fps.mp4"
-              type="video/mp4"
-            />
-          </video>
+          />
         </div>
       </div>
     </section>

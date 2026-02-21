@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function VideoP() {
   return (
     <section className="py-12 sm:py-16 bg-gradient-to-br from-emerald-50 to-teal-50">
@@ -51,19 +53,13 @@ export default function VideoP() {
           </div>
           <div className="order-1 md:order-2">
             <div className="overflow-hidden bg-white rounded-lg shadow-md border border-gray-100">
-              <video
+              <Image
+                src="/images/Islamabadd.jpg"
+                alt="Islamabad Property Tour"
+                width={1920}
+                height={1080}
                 className="w-full h-48 sm:h-56 object-cover"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-              >
-                <source
-                  src="/images/12692911_1920_1080_60fps.mp4"
-                  type="video/mp4"
-                />
-              </video>
+              />
               <div className="p-4 sm:p-5">
                 <h3 className="text-lg font-semibold text-gray-800 mb-1">
                   Property Tour Reel
