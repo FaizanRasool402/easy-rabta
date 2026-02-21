@@ -1,83 +1,5 @@
 import { ReactNode } from "react";
-
-function SearchIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="32"
-      height="32"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
-  );
-}
-
-function ShieldIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="32"
-      height="32"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    </svg>
-  );
-}
-
-function ClockIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="32"
-      height="32"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  );
-}
-
-function TrendingUpIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="32"
-      height="32"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-      <polyline points="16 7 22 7 22 13" />
-    </svg>
-  );
-}
+import { FiSearch, FiShield, FiClock, FiTrendingUp } from "react-icons/fi";
 
 interface FeatureCardProps {
   icon: ReactNode;
@@ -99,22 +21,22 @@ function FeatureCard({ icon, title, description }: FeatureCardProps) {
 
 const features = [
   {
-    icon: <SearchIcon className="w-8 h-8" />,
+    icon: <FiSearch className="w-8 h-8" />,
     title: "Easy Search",
     description: "Find your dream property with advanced filters",
   },
   {
-    icon: <ShieldIcon className="w-8 h-8" />,
+    icon: <FiShield className="w-8 h-8" />,
     title: "Verified Listings",
     description: "All properties are verified by our admin team",
   },
   {
-    icon: <ClockIcon className="w-8 h-8" />,
+    icon: <FiClock className="w-8 h-8" />,
     title: "Quick Response",
     description: "Connect directly with property owners & dealers",
   },
   {
-    icon: <TrendingUpIcon className="w-8 h-8" />,
+    icon: <FiTrendingUp className="w-8 h-8" />,
     title: "Best Deals",
     description: "Competitive prices from trusted dealers",
   },

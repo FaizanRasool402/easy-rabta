@@ -5,15 +5,13 @@ const cities_showcase = [
   {
     name: "Islamabad",
     properties: "1,800+",
-    image:
-      "https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=600&h=400&fit=crop",
+    image: "/images/Islamabadd.jpg",
     areas: "F-6, F-7, F-8, G-9, G-10, G-11",
   },
   {
     name: "Rawalpindi",
     properties: "1,200+",
-    image:
-      "https://images.unsplash.com/photo-1605146769289-440113cc3d00?w=600&h=400&fit=crop",
+    image: "/images/rwalpindi.jpg",
     areas: "Bahria Town, DHA, Saddar, Satellite Town",
   },
 ];

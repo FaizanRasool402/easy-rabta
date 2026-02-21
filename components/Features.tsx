@@ -19,8 +19,7 @@ const featuredProperties: Property[] = [
     title: "Luxury Villa in F-7",
     price: "85 Lakh",
     location: "Islamabad, F-7",
-    image:
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop",
+    image: "/images/one.jpg",
     bedrooms: 4,
     bathrooms: 3,
     area: "2,500 sqft",
@@ -31,8 +30,7 @@ const featuredProperties: Property[] = [
     title: "Modern Apartment in G-10",
     price: "45,000/mo",
     location: "Islamabad, G-10",
-    image:
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop",
+    image: "/images/two.jpg",
     bedrooms: 3,
     bathrooms: 2,
     area: "1,800 sqft",
@@ -43,8 +41,7 @@ const featuredProperties: Property[] = [
     title: "Plot in Bahria Town",
     price: "1.2 Crore",
     location: "Rawalpindi, Bahria Town",
-    image:
-      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=400&fit=crop",
+    image: "/images/three.jpg",
     bedrooms: 0,
     bathrooms: 0,
     area: "1 Kanal",
