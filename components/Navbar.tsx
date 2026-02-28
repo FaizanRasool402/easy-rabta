@@ -77,7 +77,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-200">
+    <nav className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16">
           <Link href="/" className="flex items-center flex-shrink-0">
@@ -89,7 +89,7 @@ export default function Navbar() {
               className="h-10 w-10 rounded-md object-cover sm:h-11 sm:w-11"
               priority
             />
-            <span className="ml-3 text-2xl font-bold tracking-tight text-gray-800">
+            <span className="ml-3 text-2xl font-bold tracking-tight text-gray-800 dark:text-slate-100">
               EasyRabta
             </span>
           </Link>
@@ -100,7 +100,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-gray-700 hover:text-emerald-600 font-medium transition"
+                className="font-medium text-gray-700 transition hover:text-emerald-600 dark:text-slate-200 dark:hover:text-emerald-400"
               >
                 {link.label}
               </Link>
@@ -116,7 +116,7 @@ export default function Navbar() {
                     event.stopPropagation();
                     setProfileMenuOpen((prev) => !prev);
                   }}
-                  className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 hover:bg-gray-100"
+                  className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 hover:bg-gray-100 dark:border-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   {authUser.profileImage ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -130,24 +130,24 @@ export default function Navbar() {
                       {authUser.name.charAt(0).toUpperCase()}
                     </div>
                   )}
-                  <span className="max-w-[140px] truncate text-sm font-semibold text-gray-800">
+                  <span className="max-w-[140px] truncate text-sm font-semibold text-gray-800 dark:text-slate-100">
                     {authUser.name}
                   </span>
                   <FiChevronDown
-                    className={`text-gray-500 transition ${profileMenuOpen ? "rotate-180" : ""}`}
+                    className={`text-gray-500 transition dark:text-slate-400 ${profileMenuOpen ? "rotate-180" : ""}`}
                     size={14}
                   />
                 </button>
 
                 {profileMenuOpen && (
                   <div
-                    className="absolute right-0 mt-2 w-44 rounded-lg border border-gray-200 bg-white p-2 shadow-lg"
+                    className="absolute right-0 mt-2 w-44 rounded-lg border border-gray-200 bg-white p-2 shadow-lg dark:border-slate-600 dark:bg-slate-800"
                     onClick={(event) => event.stopPropagation()}
                   >
                     <button
                       type="button"
                       onClick={handleLogout}
-                      className="w-full rounded-md px-3 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-emerald-700"
+                      className="w-full rounded-md px-3 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-emerald-700 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-emerald-400"
                     >
                       Logout
                     </button>
@@ -157,7 +157,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="text-gray-700 hover:text-emerald-600 font-medium transition text-sm"
+                className="text-sm font-medium text-gray-700 transition hover:text-emerald-600 dark:text-slate-200 dark:hover:text-emerald-400"
               >
                 Login
               </Link>
@@ -173,7 +173,7 @@ export default function Navbar() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100"
+            className="rounded-lg p-2 text-gray-700 hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-800 md:hidden"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
@@ -182,21 +182,21 @@ export default function Navbar() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
+          <div className="border-t border-gray-200 py-4 dark:border-slate-700 md:hidden">
             <div className="flex flex-col space-y-3">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-2 text-gray-700 hover:text-emerald-600 font-medium"
+                  className="py-2 font-medium text-gray-700 hover:text-emerald-600 dark:text-slate-200 dark:hover:text-emerald-400"
                 >
                   {link.label}
                 </Link>
               ))}
-              <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
+              <div className="flex flex-col gap-2 border-t border-gray-100 pt-2 dark:border-slate-700">
                 {authUser ? (
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-slate-600 dark:bg-slate-800">
                     <div className="mb-2 flex items-center">
                       {authUser.profileImage ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -214,7 +214,7 @@ export default function Navbar() {
                     <button
                       type="button"
                       onClick={handleLogout}
-                      className="text-sm font-medium text-emerald-700"
+                      className="text-sm font-medium text-emerald-700 dark:text-emerald-400"
                     >
                       Logout
                     </button>
@@ -223,7 +223,7 @@ export default function Navbar() {
                   <Link
                     href="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="py-2 text-gray-700 hover:text-emerald-600 font-medium"
+                    className="py-2 font-medium text-gray-700 hover:text-emerald-600 dark:text-slate-200 dark:hover:text-emerald-400"
                   >
                     Login
                   </Link>

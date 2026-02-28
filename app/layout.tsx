@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import ScrollToTopButton from "@/components/ScrollToTopButton";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,12 +28,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const themeScript = `(() => {
+    try {
+      const storedTheme = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const shouldUseDark = storedTheme ? storedTheme === "dark" : prefersDark;
+      document.documentElement.classList.toggle("dark", shouldUseDark);
+      document.documentElement.classList.toggle("light", !shouldUseDark);
+    } catch {}
+  })();`;
+
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
       >
         {children}
+        <ScrollToTopButton />
       </body>
     </html>
   );

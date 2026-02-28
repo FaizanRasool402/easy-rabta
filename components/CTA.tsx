@@ -12,7 +12,7 @@ export default function CTA() {
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
           <Link
-            href="/register"
+            href="/"
             className="inline-flex justify-center px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold bg-white text-emerald-600 hover:bg-emerald-50 transition text-sm sm:text-base"
           >
             Register as Dealer

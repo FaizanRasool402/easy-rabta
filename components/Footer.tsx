@@ -81,11 +81,21 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-center">
                 <FiPhone className="text-emerald-500 flex-shrink-0" size={20} />
-                <span className="ml-2">+92 300 1234567</span>
+                <a
+                  href="tel:+923001234567"
+                  className="ml-2 transition hover:text-emerald-400"
+                >
+                  +92 300 1234567
+                </a>
               </li>
               <li className="flex items-center">
                 <FiMail className="text-emerald-500 flex-shrink-0" size={20} />
-                <span className="ml-2">info@easyrabta.pk</span>
+                <a
+                  href="mailto:info@easyrabta.pk"
+                  className="ml-2 transition hover:text-emerald-400"
+                >
+                  info@easyrabta.pk
+                </a>
               </li>
               <li className="flex items-center">
                 <FiMapPin className="text-emerald-500 flex-shrink-0" size={20} />
