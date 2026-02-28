@@ -22,10 +22,10 @@ export default function Cities() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 mb-2">
-            Properties in Twin Cities
+            Properties in Major Cities
           </h2>
           <p className="text-base sm:text-lg text-gray-600 px-2">
-            Explore properties in Islamabad and Rawalpindi
+            Explore listings in active cities with more locations being added regularly.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">

@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { FiHome, FiMenu, FiX } from "react-icons/fi";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FiChevronDown, FiMenu, FiX } from "react-icons/fi";
 
 const navLinks = [
   { href: "/buy", label: "Buy" },
@@ -11,16 +13,83 @@ const navLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
+
+type AuthUser = {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  profileImage?: string;
+};
+
 export default function Navbar() {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    async function getCurrentUser() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          setAuthUser(null);
+          return;
+        }
+
+        const data = (await response.json()) as { user?: AuthUser };
+        setAuthUser(data.user ?? null);
+      } catch {
+        setAuthUser(null);
+      }
+    }
+
+    getCurrentUser();
+  }, []);
+
+  useEffect(() => {
+    function closeMenu() {
+      setProfileMenuOpen(false);
+    }
+
+    window.addEventListener("click", closeMenu);
+    return () => window.removeEventListener("click", closeMenu);
+  }, []);
+
+  async function handleLogout() {
+    try {
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } finally {
+      setAuthUser(null);
+      setProfileMenuOpen(false);
+      setMobileMenuOpen(false);
+      router.push("/");
+      router.refresh();
+    }
+  }
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16">
           <Link href="/" className="flex items-center flex-shrink-0">
-            <FiHome className="text-emerald-600" size={32} />
-            <span className="ml-2 text-lg sm:text-xl font-bold text-gray-800">
+            <Image
+              src="/images/logo.jpeg"
+              alt="EasyRabta Logo"
+              width={48}
+              height={48}
+              className="h-10 w-10 rounded-md object-cover sm:h-11 sm:w-11"
+              priority
+            />
+            <span className="ml-3 text-2xl font-bold tracking-tight text-gray-800">
               EasyRabta
             </span>
           </Link>
@@ -39,12 +108,60 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-gray-700 hover:text-emerald-600 font-medium transition text-sm"
-            >
-              Login
-            </Link>
+            {authUser ? (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setProfileMenuOpen((prev) => !prev);
+                  }}
+                  className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 hover:bg-gray-100"
+                >
+                  {authUser.profileImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={authUser.profileImage}
+                      alt="Profile"
+                      className="h-8 w-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-sm font-semibold text-white">
+                      {authUser.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="max-w-[140px] truncate text-sm font-semibold text-gray-800">
+                    {authUser.name}
+                  </span>
+                  <FiChevronDown
+                    className={`text-gray-500 transition ${profileMenuOpen ? "rotate-180" : ""}`}
+                    size={14}
+                  />
+                </button>
+
+                {profileMenuOpen && (
+                  <div
+                    className="absolute right-0 mt-2 w-44 rounded-lg border border-gray-200 bg-white p-2 shadow-lg"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="w-full rounded-md px-3 py-2 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-emerald-700"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="text-gray-700 hover:text-emerald-600 font-medium transition text-sm"
+              >
+                Login
+              </Link>
+            )}
             <Link
               href="/post-property"
               className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg transition text-sm whitespace-nowrap"
@@ -78,13 +195,39 @@ export default function Navbar() {
                 </Link>
               ))}
               <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
-                <Link
-                  href="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-2 text-gray-700 hover:text-emerald-600 font-medium"
-                >
-                  Login
-                </Link>
+                {authUser ? (
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <div className="mb-2 flex items-center">
+                      {authUser.profileImage ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={authUser.profileImage}
+                          alt="Profile"
+                          className="h-9 w-9 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-sm font-semibold text-white">
+                          {authUser.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="text-sm font-medium text-emerald-700"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="py-2 text-gray-700 hover:text-emerald-600 font-medium"
+                  >
+                    Login
+                  </Link>
+                )}
                 <Link
                   href="/post-property"
                   onClick={() => setMobileMenuOpen(false)}

@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { FiHome, FiPhone, FiMail, FiMapPin } from "react-icons/fi";
+import Image from "next/image";
+import { FiPhone, FiMail, FiMapPin } from "react-icons/fi";
 
 export default function Footer() {
   return (
@@ -7,9 +8,17 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
           <div>
-            <Link href="/" className="flex items-center mb-4">
-              <FiHome className="text-emerald-500" size={32} />
-              <span className="ml-2 text-xl font-bold text-white">
+            <Link href="/" className="mb-4 inline-flex items-center gap-3">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-white/95 shadow-sm ring-1 ring-white/30">
+                <Image
+                  src="/images/logo.jpeg"
+                  alt="EasyRabta Logo"
+                  width={34}
+                  height={34}
+                  className="h-8 w-8 rounded object-cover"
+                />
+              </span>
+              <span className="text-xl font-bold tracking-tight text-white">
                 EasyRabta
               </span>
             </Link>
@@ -80,7 +89,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center">
                 <FiMapPin className="text-emerald-500 flex-shrink-0" size={20} />
-                <span className="ml-2">Islamabad & Rawalpindi</span>
+                <span className="ml-2">Multiple Cities, Pakistan</span>
               </li>
             </ul>
           </div>
