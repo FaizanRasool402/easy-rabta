@@ -155,7 +155,7 @@ export default function FeaturedPage() {
         if (!response.ok) return;
 
         const data = (await response.json()) as { properties?: ApiProperty[] };
-        const normalized = (data.properties ?? []).map((property, index) => ({
+        const normalized: FeaturedProperty[] = (data.properties ?? []).map((property, index) => ({
           id: property._id ?? `featured-${index}`,
           inquiryId: property._id ?? "",
           title: property.title ?? "Untitled property",
@@ -163,7 +163,7 @@ export default function FeaturedPage() {
           area: property.area ?? "Area not provided",
           price: Number(property.price ?? 0),
           purpose: property.purpose === "rent" ? "rent" : "sale",
-          type: property.propertyType ?? "house",
+          type: (property.propertyType ?? "house") as FeaturedProperty["type"],
           bedrooms: Number(property.bedrooms ?? 0),
           bathrooms: Number(property.bathrooms ?? 0),
           size: property.areaSize || property.plotSize || "Size not specified",
