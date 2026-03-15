@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import StateCards from "@/components/StateCards";
 import VideoP from "@/components/VideoP";
 import PropertyVideos from "@/components/PropertyVideos";
+import LatestListings from "@/components/LatestListings";
 import Cities from "@/components/Cities";
 import Lifestyle from "@/components/Lifestyle";
 import Features from "@/components/Features";
@@ -20,6 +21,7 @@ export default function Home() {
         <StateCards />
         <VideoP />
         <PropertyVideos />
+        <LatestListings />
         <Cities />
         <Lifestyle />
         <Features />

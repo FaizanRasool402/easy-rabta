@@ -79,19 +79,19 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-14 sm:h-16">
+        <div className="flex justify-between items-center h-16 sm:h-20">
           <Link href="/" className="flex items-center flex-shrink-0">
-            <Image
-              src="/images/logo.jpeg"
-              alt="EasyRabta Logo"
-              width={48}
-              height={48}
-              className="h-10 w-10 rounded-md object-cover sm:h-11 sm:w-11"
-              priority
-            />
-            <span className="ml-3 text-2xl font-bold tracking-tight text-gray-800 dark:text-slate-100">
-              EasyRabta
-            </span>
+            <div className="relative h-14 w-[210px] overflow-hidden sm:h-16 sm:w-[250px]">
+              <Image
+                src="/images/logo.png"
+                alt="Easy Raabta Logo"
+                fill
+                priority
+                sizes="(min-width: 640px) 250px, 210px"
+                className="object-cover"
+                style={{ objectPosition: "center 52%" }}
+              />
+            </div>
           </Link>
 
           {/* Desktop Nav */}
@@ -144,6 +144,12 @@ export default function Navbar() {
                     className="absolute right-0 mt-2 w-44 rounded-lg border border-gray-200 bg-white p-2 shadow-lg dark:border-slate-600 dark:bg-slate-800"
                     onClick={(event) => event.stopPropagation()}
                   >
+                    <Link
+                      href="/dashboard"
+                      className="block rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-emerald-700 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-emerald-400"
+                    >
+                      Dashboard
+                    </Link>
                     <button
                       type="button"
                       onClick={handleLogout}
@@ -156,14 +162,14 @@ export default function Navbar() {
               </div>
             ) : (
               <Link
-                href="/login"
+                href="/login?redirect=/dashboard"
                 className="text-sm font-medium text-gray-700 transition hover:text-emerald-600 dark:text-slate-200 dark:hover:text-emerald-400"
               >
                 Login
               </Link>
             )}
             <Link
-              href="/post-property"
+              href={authUser ? "/post-property" : "/login?redirect=/post-property"}
               className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg transition text-sm whitespace-nowrap"
             >
               Post Property
@@ -211,6 +217,13 @@ export default function Navbar() {
                         </div>
                       )}
                     </div>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="mb-2 block text-sm font-medium text-gray-700 hover:text-emerald-700 dark:text-slate-100 dark:hover:text-emerald-400"
+                    >
+                      Dashboard
+                    </Link>
                     <button
                       type="button"
                       onClick={handleLogout}
@@ -221,7 +234,7 @@ export default function Navbar() {
                   </div>
                 ) : (
                   <Link
-                    href="/login"
+                    href="/login?redirect=/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
                     className="py-2 font-medium text-gray-700 hover:text-emerald-600 dark:text-slate-200 dark:hover:text-emerald-400"
                   >
@@ -229,7 +242,7 @@ export default function Navbar() {
                   </Link>
                 )}
                 <Link
-                  href="/post-property"
+                  href={authUser ? "/post-property" : "/login?redirect=/post-property"}
                   onClick={() => setMobileMenuOpen(false)}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-4 rounded-lg text-center"
                 >

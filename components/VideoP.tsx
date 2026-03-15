@@ -26,7 +26,7 @@ export default function VideoP() {
                 Property Tour
               </p>
               <h2 className="mb-4 text-2xl font-bold text-gray-800 dark:text-slate-100 sm:text-3xl md:text-4xl">
-                How EasyRabta Works
+                How Easy Raabta Works
               </h2>
               <p className="mb-6 text-sm text-gray-600 dark:text-slate-300 sm:text-base">
                 Short walkthrough video dekhein aur listing process ko quickly samjhein.
@@ -53,7 +53,7 @@ export default function VideoP() {
                   <div className="aspect-[9/16] w-full overflow-hidden rounded-[1.5rem]">
                     <iframe
                       src="https://customer-leo8lubv91ct4vwd.cloudflarestream.com/1787ff53c6da29ad2d0b1629ba28a0f0/iframe?autoplay=true&muted=true&loop=true&preload=true&controls=false"
-                      title="EasyRabta Property Video"
+                      title="Easy Raabta Property Video"
                       className="h-full w-full"
                       allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
                       allowFullScreen

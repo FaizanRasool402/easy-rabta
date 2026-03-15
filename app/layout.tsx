@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EasyRabta",
+  title: "Easy Raabta",
   description: "Property platform for buying, renting, and posting listings.",
   icons: {
     icon: "/images/logo.jpeg",

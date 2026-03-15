@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 
 type Mode = "login" | "register";
@@ -9,6 +10,7 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState<Mode>("login");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -62,7 +64,8 @@ export default function LoginPage() {
       if (mode === "register") {
         setMode("login");
       } else {
-        window.location.href = "/";
+        const redirectPath = searchParams.get("redirect") || "/dashboard";
+        window.location.href = redirectPath;
       }
     } catch {
       setError("Network error. Please check if the server is running.");
@@ -80,7 +83,7 @@ export default function LoginPage() {
             {mode === "login" ? "Login" : "Create account"}
           </h1>
           <p className="mt-2 text-sm text-gray-600">
-            Enter your details to access your EasyRabta account.
+            Enter your details to access your Easy Raabta account.
           </p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">

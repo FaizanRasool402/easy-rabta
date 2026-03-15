@@ -78,7 +78,7 @@ export default function ContactPage() {
             </p>
 
             <div className="mt-6 space-y-4 text-sm sm:text-base">
-              <InfoRow label="Email" value="info@easyrabta.pk" />
+              <InfoRow label="Email" value="EasyRaabta@gmail.com" />
               <InfoRow label="Phone" value="+92 300 1234567" />
               <InfoRow
                 label="Location"

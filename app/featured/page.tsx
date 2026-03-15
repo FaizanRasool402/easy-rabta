@@ -1,13 +1,14 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PropertyInquiryButton from "@/components/PropertyInquiryButton";
 
 type FeaturedProperty = {
   id: string;
+  inquiryId?: string;
   title: string;
   city: string;
   area: string;
@@ -20,6 +21,25 @@ type FeaturedProperty = {
   image: string;
   tags: string[];
 };
+
+type ApiProperty = {
+  _id?: string;
+  title?: string;
+  city?: string;
+  area?: string;
+  price?: number | string;
+  purpose?: "rent" | "sell";
+  propertyType?: "house" | "apartment" | "plot" | "commercial";
+  bedrooms?: number;
+  bathrooms?: number;
+  areaSize?: string;
+  plotSize?: string;
+  images?: string[];
+  tag?: string;
+};
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
 
 const featuredProperties: FeaturedProperty[] = [
   {
@@ -118,6 +138,7 @@ function formatCurrency(price: number, purpose: "rent" | "sale") {
 }
 
 export default function FeaturedPage() {
+  const [apiFeaturedProperties, setApiFeaturedProperties] = useState<FeaturedProperty[]>([]);
   const [purpose, setPurpose] = useState<"all" | "rent" | "sale">("all");
   const [city, setCity] = useState("all");
   const [type, setType] = useState("all");
@@ -127,21 +148,60 @@ export default function FeaturedPage() {
   const [maxPrice, setMaxPrice] = useState("");
   const [sortBy, setSortBy] = useState("latest");
 
+  useEffect(() => {
+    async function loadFeaturedProperties() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/properties`);
+        if (!response.ok) return;
+
+        const data = (await response.json()) as { properties?: ApiProperty[] };
+        const normalized = (data.properties ?? []).map((property, index) => ({
+          id: property._id ?? `featured-${index}`,
+          inquiryId: property._id ?? "",
+          title: property.title ?? "Untitled property",
+          city: property.city ?? "Unknown city",
+          area: property.area ?? "Area not provided",
+          price: Number(property.price ?? 0),
+          purpose: property.purpose === "rent" ? "rent" : "sale",
+          type: property.propertyType ?? "house",
+          bedrooms: Number(property.bedrooms ?? 0),
+          bathrooms: Number(property.bathrooms ?? 0),
+          size: property.areaSize || property.plotSize || "Size not specified",
+          image: property.images?.[0]
+            ? property.images[0].startsWith("http") || property.images[0].startsWith("data:")
+              ? property.images[0]
+              : `${API_BASE_URL}${property.images[0]}`
+            : "/images/one.jpg",
+          tags: property.tag ? [property.tag] : ["New"],
+        }));
+
+        setApiFeaturedProperties(normalized);
+      } catch {}
+    }
+
+    loadFeaturedProperties();
+  }, []);
+
+  const allFeaturedProperties = useMemo(
+    () => [...apiFeaturedProperties, ...featuredProperties],
+    [apiFeaturedProperties]
+  );
+
   const cityOptions = useMemo(
-    () => ["all", ...new Set(featuredProperties.map((item) => item.city))],
-    []
+    () => ["all", ...new Set(allFeaturedProperties.map((item) => item.city))],
+    [allFeaturedProperties]
   );
   const typeOptions = useMemo(
-    () => ["all", ...new Set(featuredProperties.map((item) => item.type))],
-    []
+    () => ["all", ...new Set(allFeaturedProperties.map((item) => item.type))],
+    [allFeaturedProperties]
   );
   const tagOptions = useMemo(
-    () => ["all", ...new Set(featuredProperties.flatMap((item) => item.tags))],
-    []
+    () => ["all", ...new Set(allFeaturedProperties.flatMap((item) => item.tags))],
+    [allFeaturedProperties]
   );
 
   const filteredProperties = useMemo(() => {
-    const results = featuredProperties.filter((propertyItem) => {
+    const results = allFeaturedProperties.filter((propertyItem) => {
       if (purpose !== "all" && propertyItem.purpose !== purpose) return false;
       if (city !== "all" && propertyItem.city !== city) return false;
       if (type !== "all" && propertyItem.type !== type) return false;
@@ -166,7 +226,7 @@ export default function FeaturedPage() {
       return [...results].sort((a, b) => b.bedrooms - a.bedrooms);
     }
     return results;
-  }, [bedrooms, city, maxPrice, minPrice, purpose, sortBy, tag, type]);
+  }, [allFeaturedProperties, bedrooms, city, maxPrice, minPrice, purpose, sortBy, tag, type]);
 
   function resetFilters() {
     setPurpose("all");
@@ -321,11 +381,10 @@ export default function FeaturedPage() {
                         className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
                       >
                         <div className="relative">
-                          <Image
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
                             src={propertyItem.image}
                             alt={propertyItem.title}
-                            width={600}
-                            height={400}
                             className="h-52 w-full object-cover"
                           />
                           <span className="absolute right-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-white">
@@ -363,6 +422,10 @@ export default function FeaturedPage() {
                               </span>
                             ))}
                           </div>
+                          <PropertyInquiryButton
+                            propertyId={propertyItem.inquiryId}
+                            propertyTitle={propertyItem.title}
+                          />
                         </div>
                       </article>
                     ))}
