@@ -58,13 +58,13 @@ export default function LatestListings() {
         }
 
         const data = (await response.json()) as { properties?: PublicProperty[] };
-        const normalized = (data.properties ?? []).slice(0, 6).map((property, index) => ({
+        const normalized: ListingCard[] = (data.properties ?? []).slice(0, 6).map((property, index) => ({
           id: property._id ?? `listing-${index}`,
           title: property.title ?? "Untitled property",
           city: property.city ?? "Unknown city",
           area: property.area ?? "Area not provided",
           price: Number(property.price ?? 0),
-          purpose: property.purpose === "rent" ? "rent" : "sell",
+          purpose: (property.purpose === "rent" ? "rent" : "sell") as "rent" | "sell",
           propertyType: property.propertyType ?? "Property",
           bedrooms: Number(property.bedrooms ?? 0),
           size: property.areaSize || property.plotSize || "Size not specified",
