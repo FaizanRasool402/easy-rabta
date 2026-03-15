@@ -6,7 +6,7 @@ interface FeatureCardProps {
   title: string;
   description: string;
 }
-
+// data
 function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
     <div className="bg-white rounded-lg p-4 sm:p-6 shadow-md border border-gray-100 text-center">
