@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
@@ -9,7 +9,7 @@ type Mode = "login" | "register";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
 
-export default function LoginPage() {
+function LoginForm() {
   const searchParams = useSearchParams();
   const [mode, setMode] = useState<Mode>("login");
   const [name, setName] = useState("");
@@ -231,5 +231,31 @@ export default function LoginPage() {
         </div>
       </main>
     </>
+  );
+}
+
+function LoginFormFallback() {
+  return (
+    <>
+      <Navbar />
+      <main className="min-h-[calc(100vh-56px)] sm:min-h-[calc(100vh-64px)] bg-gray-50 px-4 py-8 sm:py-14">
+        <div className="mx-auto max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
+          <div className="mt-6 space-y-4">
+            <div className="h-10 animate-pulse rounded-lg bg-gray-100" />
+            <div className="h-10 animate-pulse rounded-lg bg-gray-100" />
+            <div className="h-10 animate-pulse rounded-lg bg-gray-100" />
+          </div>
+        </div>
+      </main>
+    </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginFormFallback />}>
+      <LoginForm />
+    </Suspense>
   );
 }
