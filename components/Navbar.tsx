@@ -81,15 +81,15 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 sm:h-20">
           <Link href="/" className="flex items-center flex-shrink-0">
-            <div className="relative h-14 w-[210px] overflow-hidden sm:h-16 sm:w-[250px]">
+            <div className="relative h-20 w-[270px] overflow-hidden sm:h-20 sm:w-[300px]">
               <Image
                 src="/images/logo.png"
                 alt="Easy Raabta Logo"
                 fill
                 priority
-                sizes="(min-width: 640px) 250px, 210px"
-                className="object-cover"
-                style={{ objectPosition: "center 52%" }}
+                sizes="(min-width: 640px) 300px, 270px"
+                className="object-contain"
+                style={{ objectPosition: "center center" }}
               />
             </div>
           </Link>
