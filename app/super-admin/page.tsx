@@ -4,10 +4,20 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import SuperAdminShell from "@/components/SuperAdminShell";
 import {
+  buildPropertyFlags,
+  formatPrice,
+  normalizeProperty,
+  reviewReason,
+  type PropertyRecord,
+  type RawProperty,
+} from "@/lib/superAdmin";
+import {
   FiArrowRight,
+  FiBarChart2,
   FiClock,
   FiHome,
   FiMapPin,
+  FiMessageCircle,
   FiShield,
   FiUsers,
 } from "react-icons/fi";
@@ -19,58 +29,6 @@ type AuthUser = {
   name?: string;
   email?: string;
 };
-
-type RawProperty = {
-  _id?: string;
-  title?: string;
-  purpose?: string;
-  propertyType?: string;
-  city?: string;
-  area?: string;
-  price?: number | string;
-  status?: string;
-  createdAt?: string;
-  images?: string[];
-};
-
-type PropertyRecord = {
-  id: string;
-  title: string;
-  purpose: string;
-  propertyType: string;
-  city: string;
-  area: string;
-  price: number;
-  status: string;
-  createdAt: string;
-  images: string[];
-};
-
-function normalizeProperty(property: RawProperty, index: number): PropertyRecord {
-  return {
-    id: property._id ?? `property-${index}`,
-    title: property.title ?? "Untitled property",
-    purpose: property.purpose ?? "sell",
-    propertyType: property.propertyType ?? "Property",
-    city: property.city ?? "Unknown city",
-    area: property.area ?? "Area not provided",
-    price: Number(property.price ?? 0),
-    status: property.status ?? "active",
-    createdAt: property.createdAt ?? "",
-    images: property.images ?? [],
-  };
-}
-
-function formatPrice(value: number) {
-  return new Intl.NumberFormat("en-PK").format(value);
-}
-
-function reviewReason(property: PropertyRecord) {
-  if (property.images.length === 0) return "Missing property image";
-  if (!property.price) return "Price not added";
-  if (property.title === "Untitled property") return "Title needs cleanup";
-  return "Ready for manual review";
-}
 
 export default function SuperAdminPage() {
   const [loading, setLoading] = useState(true);
@@ -110,11 +68,18 @@ export default function SuperAdminPage() {
   const rentCount = properties.filter((property) => property.purpose === "rent").length;
   const saleCount = properties.filter((property) => property.purpose !== "rent").length;
   const flaggedCount = properties.filter(
-    (property) =>
-      property.images.length === 0 ||
-      property.price === 0 ||
-      property.title === "Untitled property"
+    (property) => buildPropertyFlags(property).length > 1
   ).length;
+  const avgPrice =
+    totalListings > 0
+      ? Math.round(properties.reduce((sum, property) => sum + property.price, 0) / totalListings)
+      : 0;
+  const categoryMix = [...properties.reduce<Map<string, number>>((acc, property) => {
+    acc.set(property.propertyType, (acc.get(property.propertyType) ?? 0) + 1);
+    return acc;
+  }, new Map())]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4);
 
   const topCities = [...properties.reduce<Map<string, number>>((acc, property) => {
     acc.set(property.city, (acc.get(property.city) ?? 0) + 1);
@@ -167,6 +132,58 @@ export default function SuperAdminPage() {
             Derived from missing key listing data
           </p>
         </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <section className="rounded-[1.75rem] border border-slate-800 bg-slate-900 p-5">
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-400">
+            Average Ticket
+          </p>
+          <p className="mt-3 text-3xl font-bold text-white">PKR {formatPrice(avgPrice)}</p>
+          <p className="mt-2 text-sm text-slate-400">
+            Average asking price across all live inventory.
+          </p>
+        </section>
+        <section className="rounded-[1.75rem] border border-slate-800 bg-slate-900 p-5">
+          <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.24em] text-emerald-400">
+            <FiBarChart2 size={15} />
+            Category Mix
+          </p>
+          <div className="mt-4 space-y-3">
+            {categoryMix.length > 0 ? (
+              categoryMix.map(([category, count]) => (
+                <div key={category} className="flex items-center justify-between text-sm">
+                  <span className="text-slate-300">{category}</span>
+                  <span className="font-semibold text-white">{count}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-slate-400">No category data available.</p>
+            )}
+          </div>
+        </section>
+        <section className="rounded-[1.75rem] border border-slate-800 bg-slate-900 p-5">
+          <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.24em] text-emerald-400">
+            <FiMessageCircle size={15} />
+            Admin Snapshot
+          </p>
+          <div className="mt-4 space-y-3 text-sm">
+            <div className="rounded-2xl bg-slate-950/60 px-4 py-3 text-slate-300">
+              Moderation pressure is{" "}
+              <span className="font-semibold text-white">
+                {flaggedCount > 5 ? "high" : flaggedCount > 0 ? "moderate" : "stable"}
+              </span>
+              .
+            </div>
+            <div className="rounded-2xl bg-slate-950/60 px-4 py-3 text-slate-300">
+              Highest inventory concentration remains in{" "}
+              <span className="font-semibold text-white">
+                {topCities[0]?.[0] ?? "unavailable"}
+              </span>
+              .
+            </div>
+          </div>
+        </section>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.3fr_minmax(320px,0.7fr)]">
@@ -298,6 +315,16 @@ export default function SuperAdminPage() {
                 <span className="flex items-center gap-3 text-sm font-semibold text-white">
                   <FiHome size={16} className="text-emerald-400" />
                   Review public inventory
+                </span>
+                <FiArrowRight size={16} className="text-slate-400" />
+              </Link>
+              <Link
+                href="/super-admin/insights"
+                className="flex items-center justify-between rounded-2xl bg-slate-950/60 px-4 py-4 transition hover:bg-slate-800"
+              >
+                <span className="flex items-center gap-3 text-sm font-semibold text-white">
+                  <FiBarChart2 size={16} className="text-emerald-400" />
+                  Platform insights
                 </span>
                 <FiArrowRight size={16} className="text-slate-400" />
               </Link>
