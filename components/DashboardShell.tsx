@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import { isSuperAdminUser, type AppAuthUser } from "@/lib/auth";
 import {
   FiGrid,
   FiHeart,
@@ -18,12 +19,6 @@ type DashboardShellProps = {
   description: string;
   action?: React.ReactNode;
   children: React.ReactNode;
-};
-
-type AuthUser = {
-  name?: string;
-  email?: string;
-  profileImage?: string;
 };
 
 const API_BASE_URL =
@@ -60,7 +55,7 @@ export default function DashboardShell({
 }: DashboardShellProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<AppAuthUser | null>(null);
 
   useEffect(() => {
     async function loadUser() {
@@ -74,7 +69,11 @@ export default function DashboardShell({
           return;
         }
 
-        const data = (await response.json()) as { user?: AuthUser };
+        const data = (await response.json()) as { user?: AppAuthUser };
+        if (isSuperAdminUser(data.user)) {
+          router.replace("/super-admin");
+          return;
+        }
         setUser(data.user ?? null);
       } catch {
         setUser(null);
@@ -82,7 +81,7 @@ export default function DashboardShell({
     }
 
     loadUser();
-  }, []);
+  }, [router]);
 
   async function handleLogout() {
     try {

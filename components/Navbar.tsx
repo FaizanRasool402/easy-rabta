@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FiChevronDown, FiMenu, FiX } from "react-icons/fi";
+import { isSuperAdminUser, type AppAuthUser } from "@/lib/auth";
 
 const navLinks = [
   { href: "/buy", label: "Buy" },
@@ -16,19 +17,12 @@ const navLinks = [
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
 
-type AuthUser = {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  profileImage?: string;
-};
-
 export default function Navbar() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [authUser, setAuthUser] = useState<AppAuthUser | null>(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const isSuperAdmin = isSuperAdminUser(authUser);
 
   useEffect(() => {
     async function getCurrentUser() {
@@ -42,7 +36,7 @@ export default function Navbar() {
           return;
         }
 
-        const data = (await response.json()) as { user?: AuthUser };
+        const data = (await response.json()) as { user?: AppAuthUser };
         setAuthUser(data.user ?? null);
       } catch {
         setAuthUser(null);
@@ -145,10 +139,10 @@ export default function Navbar() {
                     onClick={(event) => event.stopPropagation()}
                   >
                     <Link
-                      href="/dashboard"
+                      href={isSuperAdmin ? "/super-admin" : "/dashboard"}
                       className="block rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-emerald-700 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-emerald-400"
                     >
-                      Dashboard
+                      {isSuperAdmin ? "Super Admin" : "Dashboard"}
                     </Link>
                     <button
                       type="button"
@@ -168,12 +162,14 @@ export default function Navbar() {
                 Login
               </Link>
             )}
-            <Link
-              href={authUser ? "/post-property" : "/login?redirect=/post-property"}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg transition text-sm whitespace-nowrap"
-            >
-              Post Property
-            </Link>
+            {!isSuperAdmin ? (
+              <Link
+                href={authUser ? "/post-property" : "/login?redirect=/post-property"}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg transition text-sm whitespace-nowrap"
+              >
+                Post Property
+              </Link>
+            ) : null}
           </div>
 
           {/* Mobile Menu Button */}
@@ -218,11 +214,11 @@ export default function Navbar() {
                       )}
                     </div>
                     <Link
-                      href="/dashboard"
+                      href={isSuperAdmin ? "/super-admin" : "/dashboard"}
                       onClick={() => setMobileMenuOpen(false)}
                       className="mb-2 block text-sm font-medium text-gray-700 hover:text-emerald-700 dark:text-slate-100 dark:hover:text-emerald-400"
                     >
-                      Dashboard
+                      {isSuperAdmin ? "Super Admin" : "Dashboard"}
                     </Link>
                     <button
                       type="button"
@@ -241,13 +237,15 @@ export default function Navbar() {
                     Login
                   </Link>
                 )}
-                <Link
-                  href={authUser ? "/post-property" : "/login?redirect=/post-property"}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-4 rounded-lg text-center"
-                >
-                  Post Property
-                </Link>
+                {!isSuperAdmin ? (
+                  <Link
+                    href={authUser ? "/post-property" : "/login?redirect=/post-property"}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-4 rounded-lg text-center"
+                  >
+                    Post Property
+                  </Link>
+                ) : null}
               </div>
             </div>
           </div>

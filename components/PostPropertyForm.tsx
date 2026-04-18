@@ -3,6 +3,7 @@
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { areasByCity, cities } from "@/components/Hero";
+import { isSuperAdminUser } from "@/lib/auth";
 
 type FormState = {
   title: string;
@@ -85,6 +86,7 @@ export default function PostPropertyForm({
   const [submitting, setSubmitting] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   const imagePreviewUrls = useMemo(
     () => images.map((file) => URL.createObjectURL(file)),
@@ -121,10 +123,15 @@ export default function PostPropertyForm({
         }
 
         const data = (await response.json()) as {
-          user?: { name?: string; phone?: string };
+          user?: {
+            name?: string;
+            phone?: string;
+            role?: "user" | "super_admin";
+          };
         };
 
         setIsLoggedIn(true);
+        setIsSuperAdmin(isSuperAdminUser(data.user));
         setForm((prev) => ({
           ...prev,
           contactName: data.user?.name ?? prev.contactName,
@@ -132,6 +139,7 @@ export default function PostPropertyForm({
         }));
       } catch {
         setIsLoggedIn(false);
+        setIsSuperAdmin(false);
       } finally {
         setAuthLoading(false);
       }
@@ -316,7 +324,23 @@ export default function PostPropertyForm({
         </div>
       ) : null}
 
-      {!authLoading && isLoggedIn ? (
+      {!authLoading && isLoggedIn && isSuperAdmin ? (
+        <div className="mb-6 rounded-2xl border border-amber-200 bg-white p-5 sm:p-7">
+          <h1 className="text-xl font-bold text-gray-900">Super Admin Access</h1>
+          <p className="mt-2 text-sm leading-7 text-gray-600">
+            Super admin account ko sirf platform overview dashboard dikhaya jata hai.
+            Property posting regular user accounts ke liye available hai.
+          </p>
+          <Link
+            href="/super-admin"
+            className="mt-4 inline-block rounded-lg bg-emerald-600 px-4 py-2 font-semibold text-white hover:bg-emerald-700"
+          >
+            Open Super Admin Dashboard
+          </Link>
+        </div>
+      ) : null}
+
+      {!authLoading && isLoggedIn && !isSuperAdmin ? (
         <>
           <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-5 sm:p-7">
             <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">

@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
+import PropertyTypeSection from "@/components/PropertyTypeSection";
 import StateCards from "@/components/StateCards";
 import VideoP from "@/components/VideoP";
 import PropertyVideos from "@/components/PropertyVideos";
@@ -18,6 +19,7 @@ export default function Home() {
       <Navbar />
       <main>
         <Hero />
+        <PropertyTypeSection />
         <StateCards />
         <VideoP />
         <PropertyVideos />

@@ -4,8 +4,16 @@ import { FormEvent, Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import { isSuperAdminUser } from "@/lib/auth";
 
 type Mode = "login" | "register";
+type AuthResponse = {
+  message?: string;
+  user?: {
+    role?: "user" | "super_admin";
+  };
+};
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
 
@@ -53,7 +61,7 @@ function LoginForm() {
         body: JSON.stringify(payload),
       });
 
-      const data = (await response.json()) as { message?: string };
+      const data = (await response.json()) as AuthResponse;
 
       if (!response.ok) {
         setError(data.message ?? "Request failed.");
@@ -64,7 +72,10 @@ function LoginForm() {
       if (mode === "register") {
         setMode("login");
       } else {
-        const redirectPath = searchParams.get("redirect") || "/dashboard";
+        const redirectPath =
+          isSuperAdminUser(data.user)
+            ? "/super-admin"
+            : searchParams.get("redirect") || "/dashboard";
         window.location.href = redirectPath;
       }
     } catch {
