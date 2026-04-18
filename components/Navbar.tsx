@@ -23,6 +23,8 @@ export default function Navbar() {
   const [authUser, setAuthUser] = useState<AppAuthUser | null>(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const isSuperAdmin = isSuperAdminUser(authUser);
+  const userInitial = authUser?.name?.charAt(0).toUpperCase() ?? "U";
+  const userDisplayName = authUser?.name ?? "User";
 
   useEffect(() => {
     async function getCurrentUser() {
@@ -121,11 +123,11 @@ export default function Navbar() {
                     />
                   ) : (
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-sm font-semibold text-white">
-                      {authUser.name.charAt(0).toUpperCase()}
+                      {userInitial}
                     </div>
                   )}
                   <span className="max-w-[140px] truncate text-sm font-semibold text-gray-800 dark:text-slate-100">
-                    {authUser.name}
+                    {userDisplayName}
                   </span>
                   <FiChevronDown
                     className={`text-gray-500 transition dark:text-slate-400 ${profileMenuOpen ? "rotate-180" : ""}`}
@@ -209,7 +211,7 @@ export default function Navbar() {
                         />
                       ) : (
                         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-sm font-semibold text-white">
-                          {authUser.name.charAt(0).toUpperCase()}
+                          {userInitial}
                         </div>
                       )}
                     </div>
