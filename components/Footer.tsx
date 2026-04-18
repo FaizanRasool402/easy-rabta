@@ -88,10 +88,10 @@ export default function Footer() {
               <li className="flex items-center text-sm text-gray-300 sm:text-base">
                 <FiPhone className="text-emerald-500 flex-shrink-0" size={20} />
                 <a
-                  href="tel:+923001234567"
+                  href="tel:+923155759711"
                   className="ml-2 transition hover:text-emerald-400"
                 >
-                  +92 300 1234567
+                  +92 315 5759711
                 </a>
               </li>
               <li className="flex items-center text-sm text-gray-300 sm:text-base">

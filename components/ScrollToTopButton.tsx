@@ -25,7 +25,7 @@ export default function ScrollToTopButton() {
   return (
     <div className="fixed bottom-5 right-5 z-[60] flex flex-col items-end gap-3">
       <a
-        href="https://wa.me/923001234567?text=Assalam%20o%20Alaikum%2C%20I%20want%20property%20details."
+        href="https://wa.me/923155759711?text=Assalam%20o%20Alaikum%2C%20I%20want%20property%20details."
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat on WhatsApp"
