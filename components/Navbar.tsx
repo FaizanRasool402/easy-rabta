@@ -8,9 +8,11 @@ import { FiChevronDown, FiMenu, FiX } from "react-icons/fi";
 import { isSuperAdminUser, type AppAuthUser } from "@/lib/auth";
 
 const navLinks = [
+  { href: "/", label: "Home" },
   { href: "/buy", label: "Buy" },
   { href: "/rent", label: "Rent" },
   { href: "/featured", label: "Featured" },
+  { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
 ];
 

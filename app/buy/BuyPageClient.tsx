@@ -5,6 +5,11 @@ import { FiHeart } from "react-icons/fi";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyInquiryButton from "@/components/PropertyInquiryButton";
+import { areasByCity, cities } from "@/components/Hero";
+import {
+  normalizePropertyType,
+  propertyTypes as allPropertyTypes,
+} from "@/lib/propertyTypes";
 import {
   isPropertySaved,
   toggleSavedProperty,
@@ -56,7 +61,7 @@ const properties: BuyProperty[] = [
     title: "5 Marla Corner House in F-10",
     city: "Islamabad",
     area: "F-10",
-    propertyType: "House",
+    propertyType: "Houses",
     bedrooms: 4,
     price: 45000000,
     size: "5 Marla",
@@ -67,7 +72,7 @@ const properties: BuyProperty[] = [
     title: "10 Marla Residential Plot in G-13",
     city: "Islamabad",
     area: "G-13",
-    propertyType: "Plot",
+    propertyType: "Plots (Residential)",
     bedrooms: 0,
     price: 34000000,
     size: "10 Marla",
@@ -78,7 +83,7 @@ const properties: BuyProperty[] = [
     title: "Luxury Apartment in Saddar",
     city: "Rawalpindi",
     area: "Saddar",
-    propertyType: "Apartment",
+    propertyType: "Apartments & Flats",
     bedrooms: 3,
     price: 25000000,
     size: "1700 sqft",
@@ -89,7 +94,7 @@ const properties: BuyProperty[] = [
     title: "Main Road Commercial Space",
     city: "Rawalpindi",
     area: "Satellite Town (All Blocks)",
-    propertyType: "Commercial",
+    propertyType: "Commercial Spaces (Plaza / Building)",
     bedrooms: 0,
     price: 62000000,
     size: "2100 sqft",
@@ -112,7 +117,11 @@ export default function BuyPage({
 }) {
   const [city, setCity] = useState(initialFilters.city);
   const [area, setArea] = useState(initialFilters.area);
-  const [propertyType, setPropertyType] = useState(initialFilters.propertyType);
+  const [propertyType, setPropertyType] = useState(
+    initialFilters.propertyType === "all"
+      ? "all"
+      : normalizePropertyType(initialFilters.propertyType)
+  );
   const [bedrooms, setBedrooms] = useState(initialFilters.bedrooms);
   const [minPrice, setMinPrice] = useState(initialFilters.minPrice);
   const [maxPrice, setMaxPrice] = useState(initialFilters.maxPrice);
@@ -137,7 +146,7 @@ export default function BuyPage({
           title: property.title ?? "Untitled property",
           city: property.city ?? "Unknown city",
           area: property.area ?? "Area not provided",
-          propertyType: property.propertyType ?? "Property",
+          propertyType: normalizePropertyType(property.propertyType),
           bedrooms: Number(property.bedrooms ?? 0),
           price: Number(property.price ?? 0),
           size: property.areaSize || property.plotSize || "Size not specified",
@@ -158,18 +167,24 @@ export default function BuyPage({
   const listingSource = useMemo(() => [...apiProperties, ...properties], [apiProperties]);
 
   const cityOptions = useMemo(
-    () => ["all", ...new Set(listingSource.map((item) => item.city))],
+    () => ["all", ...new Set([...cities, ...listingSource.map((item) => item.city)])],
     [listingSource]
   );
   const areaOptions = useMemo(() => {
-    const source =
-      city === "all"
-        ? listingSource
-        : listingSource.filter((property) => property.city === city);
-    return ["all", ...new Set(source.map((item) => item.area))];
+    if (city !== "all") {
+      const listingAreas = listingSource
+        .filter((property) => property.city === city)
+        .map((item) => item.area);
+      return ["all", ...new Set([...(areasByCity[city] ?? []), ...listingAreas])];
+    }
+
+    return ["all", ...new Set(listingSource.map((item) => item.area))];
   }, [city, listingSource]);
   const propertyTypeOptions = useMemo(
-    () => ["all", ...new Set(listingSource.map((item) => item.propertyType))],
+    () => [
+      "all",
+      ...new Set([...allPropertyTypes, ...listingSource.map((item) => item.propertyType)]),
+    ],
     [listingSource]
   );
   const bedroomOptions = useMemo(

@@ -4,11 +4,19 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { areasByCity, cities } from "@/components/Hero";
 import { isSuperAdminUser } from "@/lib/auth";
+import {
+  isBedroomPropertyType,
+  isCoveredAreaPropertyType,
+  isPlotPropertyType,
+  normalizePropertyType,
+  propertyTypes,
+  type PropertyType,
+} from "@/lib/propertyTypes";
 
 type FormState = {
   title: string;
   purpose: "sell" | "rent";
-  propertyType: "house" | "apartment" | "plot" | "commercial";
+  propertyType: PropertyType;
   tag: string;
   city: string;
   area: string;
@@ -64,7 +72,7 @@ export default function PostPropertyForm({
   const [form, setForm] = useState<FormState>({
     title: "",
     purpose: "sell",
-    propertyType: "house",
+    propertyType: "Houses",
     tag: "featured",
     city: "",
     area: "",
@@ -96,10 +104,9 @@ export default function PostPropertyForm({
     () => videos.map((file) => URL.createObjectURL(file)),
     [videos]
   );
-  const isResidential =
-    form.propertyType === "house" || form.propertyType === "apartment";
-  const isCommercial = form.propertyType === "commercial";
-  const isPlot = form.propertyType === "plot";
+  const isResidential = isBedroomPropertyType(form.propertyType);
+  const isCommercial = isCoveredAreaPropertyType(form.propertyType);
+  const isPlot = isPlotPropertyType(form.propertyType);
   const loginHref = withinDashboard
     ? "/login?redirect=/dashboard/add-property"
     : "/login?redirect=/post-property";
@@ -275,7 +282,7 @@ export default function PostPropertyForm({
       setForm({
         title: "",
         purpose: "sell",
-        propertyType: "house",
+        propertyType: "Houses",
         tag: "featured",
         city: "",
         area: "",
@@ -380,21 +387,17 @@ export default function PostPropertyForm({
                 onChange={(value) =>
                   setForm((prev) => ({
                     ...prev,
-                    propertyType: value as FormState["propertyType"],
-                    bedrooms:
-                      value === "house" || value === "apartment"
-                        ? prev.bedrooms
-                        : "",
-                    coveredArea: value === "commercial" ? prev.coveredArea : "",
-                    plotSize: value === "plot" ? prev.plotSize : "",
+                    propertyType: normalizePropertyType(
+                      value
+                    ) as FormState["propertyType"],
+                    bedrooms: isBedroomPropertyType(value) ? prev.bedrooms : "",
+                    coveredArea: isCoveredAreaPropertyType(value)
+                      ? prev.coveredArea
+                      : "",
+                    plotSize: isPlotPropertyType(value) ? prev.plotSize : "",
                   }))
                 }
-                options={[
-                  { label: "House", value: "house" },
-                  { label: "Apartment", value: "apartment" },
-                  { label: "Plot", value: "plot" },
-                  { label: "Commercial", value: "commercial" },
-                ]}
+                options={propertyTypes.map((type) => ({ label: type, value: type }))}
               />
               <Select
                 label="Tag"

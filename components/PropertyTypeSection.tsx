@@ -22,27 +22,31 @@ type PropertyTypeCard = {
   iconBg: string;
 };
 
+function propertyTypeHref(type: string) {
+  return `/buy?propertyType=${encodeURIComponent(type)}`;
+}
+
 const propertyTypes: PropertyTypeCard[] = [
   {
     title: "Houses",
     subtitle: "Family homes",
-    href: "/buy?propertyType=House",
+    href: propertyTypeHref("Houses"),
     icon: FiHome,
     accent: "from-emerald-500/20 to-teal-500/10",
     iconBg: "bg-emerald-100 text-emerald-700",
   },
   {
-    title: "Apartments",
+    title: "Apartments & Flats",
     subtitle: "Flats and units",
-    href: "/buy?propertyType=Apartment",
+    href: propertyTypeHref("Apartments & Flats"),
     icon: FiGrid,
     accent: "from-sky-500/20 to-cyan-500/10",
     iconBg: "bg-sky-100 text-sky-700",
   },
   {
-    title: "Portions",
+    title: "Portions & Floors",
     subtitle: "Upper and lower",
-    href: "/buy?propertyType=Portion",
+    href: propertyTypeHref("Portions & Floors"),
     icon: FiLayers,
     accent: "from-amber-500/20 to-orange-500/10",
     iconBg: "bg-amber-100 text-amber-700",
@@ -50,31 +54,31 @@ const propertyTypes: PropertyTypeCard[] = [
   {
     title: "Shops",
     subtitle: "Retail spaces",
-    href: "/commercial",
+    href: propertyTypeHref("Shops"),
     icon: FiShoppingBag,
     accent: "from-rose-500/20 to-pink-500/10",
     iconBg: "bg-rose-100 text-rose-700",
   },
   {
-    title: "Commercial",
+    title: "Commercial Spaces",
     subtitle: "Business property",
-    href: "/commercial",
+    href: propertyTypeHref("Commercial Spaces (Plaza / Building)"),
     icon: FiBriefcase,
     accent: "from-violet-500/20 to-fuchsia-500/10",
     iconBg: "bg-violet-100 text-violet-700",
   },
   {
-    title: "Residential Plots",
+    title: "Plots (Residential)",
     subtitle: "Build your home",
-    href: "/plots",
+    href: propertyTypeHref("Plots (Residential)"),
     icon: FiMapPin,
     accent: "from-teal-500/20 to-emerald-500/10",
     iconBg: "bg-teal-100 text-teal-700",
   },
   {
-    title: "Industrial",
-    subtitle: "Factory land",
-    href: "/commercial",
+    title: "Plots (Commercial)",
+    subtitle: "Commercial land",
+    href: propertyTypeHref("Plots (Commercial)"),
     icon: FiTool,
     accent: "from-slate-500/20 to-gray-500/10",
     iconBg: "bg-slate-100 text-slate-700",
@@ -82,15 +86,15 @@ const propertyTypes: PropertyTypeCard[] = [
   {
     title: "Agricultural Land",
     subtitle: "Farm and fields",
-    href: "/plots",
+    href: propertyTypeHref("Agricultural Land / Farms"),
     icon: FiMap,
     accent: "from-lime-500/20 to-green-500/10",
     iconBg: "bg-lime-100 text-lime-700",
   },
   {
-    title: "Files",
-    subtitle: "Documentation",
-    href: "/contact",
+    title: "Farmhouses",
+    subtitle: "Farm living",
+    href: propertyTypeHref("Farmhouses"),
     icon: FiFileText,
     accent: "from-yellow-500/20 to-amber-500/10",
     iconBg: "bg-yellow-100 text-yellow-700",
@@ -98,7 +102,7 @@ const propertyTypes: PropertyTypeCard[] = [
   {
     title: "Offices",
     subtitle: "Work-ready spaces",
-    href: "/commercial",
+    href: propertyTypeHref("Offices"),
     icon: FiPackage,
     accent: "from-indigo-500/20 to-blue-500/10",
     iconBg: "bg-indigo-100 text-indigo-700",

@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import { isSuperAdminUser, type AppAuthUser } from "@/lib/auth";
 import {
   FiActivity,
+  FiEdit3,
   FiGrid,
   FiBarChart2,
   FiLogOut,
@@ -27,6 +28,7 @@ const API_BASE_URL =
 const navItems = [
   { href: "/super-admin", label: "Overview", icon: FiShield },
   { href: "/super-admin/moderation", label: "Moderation", icon: FiGrid },
+  { href: "/super-admin/blogs", label: "Blogs", icon: FiEdit3 },
   { href: "/super-admin/insights", label: "Insights", icon: FiBarChart2 },
   { href: "/super-admin/settings", label: "Settings", icon: FiSettings },
 ];

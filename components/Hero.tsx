@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FiSearch } from "react-icons/fi";
+import {
+  isBedroomPropertyType,
+  isCoveredAreaPropertyType,
+  isPlotPropertyType,
+  propertyTypes,
+} from "@/lib/propertyTypes";
 
 export const cities = [
   "Islamabad",
@@ -12,7 +18,6 @@ export const cities = [
   "Hawlian",
   "Khanpur",
 ];
-export const propertyTypes = ["House", "Apartment", "Plot", "Commercial"];
 export const areasByCity: Record<string, string[]> = {
   Islamabad: [
     "F-5",
@@ -358,8 +363,7 @@ export default function Hero() {
     priceMin: "",
     priceMax: "",
   });
-  const isResidentialType =
-    searchData.propertyType === "House" || searchData.propertyType === "Apartment";
+  const isResidentialType = isBedroomPropertyType(searchData.propertyType);
 
   function handleSearch() {
     const params = new URLSearchParams();
@@ -462,12 +466,15 @@ export default function Hero() {
                   setSearchData({
                     ...searchData,
                     propertyType: e.target.value,
-                    bedrooms:
-                      e.target.value === "House" || e.target.value === "Apartment"
-                        ? searchData.bedrooms
-                        : "",
-                    coveredArea: e.target.value === "Commercial" ? searchData.coveredArea : "",
-                    plotSize: e.target.value === "Plot" ? searchData.plotSize : "",
+                    bedrooms: isBedroomPropertyType(e.target.value)
+                      ? searchData.bedrooms
+                      : "",
+                    coveredArea: isCoveredAreaPropertyType(e.target.value)
+                      ? searchData.coveredArea
+                      : "",
+                    plotSize: isPlotPropertyType(e.target.value)
+                      ? searchData.plotSize
+                      : "",
                   })
                 }
                 className="px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm sm:text-base"
@@ -495,7 +502,7 @@ export default function Hero() {
                   <option value="4">4 Beds</option>
                   <option value="5">5+ Beds</option>
                 </select>
-              ) : searchData.propertyType === "Commercial" ? (
+              ) : isCoveredAreaPropertyType(searchData.propertyType) ? (
                 <input
                   type="text"
                   placeholder="Covered Area (sqft)"
@@ -505,7 +512,7 @@ export default function Hero() {
                   }
                   className="px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm sm:text-base"
                 />
-              ) : searchData.propertyType === "Plot" ? (
+              ) : isPlotPropertyType(searchData.propertyType) ? (
                 <input
                   type="text"
                   placeholder="Plot Size (Marla/Kanal)"

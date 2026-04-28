@@ -7,10 +7,11 @@ import Navbar from "@/components/Navbar";
 import { isSuperAdminUser } from "@/lib/auth";
 
 type Mode = "login" | "register";
+type RegisterRole = "user" | "dealer";
 type AuthResponse = {
   message?: string;
   user?: {
-    role?: "user" | "super_admin";
+    role?: "user" | "dealer" | "super_admin";
   };
 };
 
@@ -19,7 +20,12 @@ const API_BASE_URL =
 
 function LoginForm() {
   const searchParams = useSearchParams();
-  const [mode, setMode] = useState<Mode>("login");
+  const initialMode = searchParams.get("mode") === "register" ? "register" : "login";
+  const initialRegisterRole =
+    searchParams.get("role") === "dealer" ? "dealer" : "user";
+  const [mode, setMode] = useState<Mode>(initialMode);
+  const [registerRole, setRegisterRole] =
+    useState<RegisterRole>(initialRegisterRole);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -51,7 +57,7 @@ function LoginForm() {
     const payload =
       mode === "login"
         ? { email, password }
-        : { name, phone, email, password, profileImage };
+        : { name, phone, email, password, profileImage, role: registerRole };
 
     try {
       const response = await fetch(endpoint, {
@@ -91,15 +97,41 @@ function LoginForm() {
       <main className="min-h-[calc(100vh-56px)] sm:min-h-[calc(100vh-64px)] bg-gray-50 px-4 py-8 sm:py-14">
         <div className="mx-auto max-w-md rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
           <h1 className="text-2xl font-bold text-gray-900">
-            {mode === "login" ? "Login" : "Create account"}
+            {mode === "login"
+              ? "Login"
+              : registerRole === "dealer"
+                ? "Register as Dealer"
+                : "Create account"}
           </h1>
           <p className="mt-2 text-sm text-gray-600">
-            Enter your details to access your Easy Raabta account.
+            {mode === "register" && registerRole === "dealer"
+              ? "Create your dealer account to manage property listings."
+              : "Enter your details to access your Easy Raabta account."}
           </p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             {mode === "register" && (
               <>
+                <div>
+                  <label
+                    htmlFor="registerRole"
+                    className="mb-1 block text-sm font-medium text-gray-700"
+                  >
+                    Account Type
+                  </label>
+                  <select
+                    id="registerRole"
+                    value={registerRole}
+                    onChange={(e) =>
+                      setRegisterRole(e.target.value as RegisterRole)
+                    }
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none transition focus:border-emerald-500"
+                  >
+                    <option value="user">Property Seeker</option>
+                    <option value="dealer">Dealer</option>
+                  </select>
+                </div>
+
                 <div>
                   <label
                     htmlFor="name"
@@ -215,7 +247,9 @@ function LoginForm() {
                 ? "Please wait..."
                 : mode === "login"
                   ? "Login"
-                  : "Register"}
+                  : registerRole === "dealer"
+                    ? "Register as Dealer"
+                    : "Register"}
             </button>
           </form>
 
@@ -225,6 +259,9 @@ function LoginForm() {
               type="button"
               onClick={() => {
                 setMode(mode === "login" ? "register" : "login");
+                if (mode === "register") {
+                  setRegisterRole("user");
+                }
                 setError("");
                 setMessage("");
               }}

@@ -5,6 +5,12 @@ import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyInquiryButton from "@/components/PropertyInquiryButton";
+import { cities } from "@/components/Hero";
+import {
+  normalizePropertyType,
+  propertyTypes,
+  type PropertyType,
+} from "@/lib/propertyTypes";
 
 type FeaturedProperty = {
   id: string;
@@ -14,7 +20,7 @@ type FeaturedProperty = {
   area: string;
   price: number;
   purpose: "rent" | "sale";
-  type: "house" | "apartment" | "plot" | "commercial";
+  type: PropertyType;
   bedrooms: number;
   bathrooms: number;
   size: string;
@@ -29,7 +35,7 @@ type ApiProperty = {
   area?: string;
   price?: number | string;
   purpose?: "rent" | "sell";
-  propertyType?: "house" | "apartment" | "plot" | "commercial";
+  propertyType?: string;
   bedrooms?: number;
   bathrooms?: number;
   areaSize?: string;
@@ -49,7 +55,7 @@ const featuredProperties: FeaturedProperty[] = [
     area: "F-10",
     price: 85000000,
     purpose: "sale",
-    type: "house",
+    type: "Houses",
     bedrooms: 5,
     bathrooms: 6,
     size: "1 Kanal",
@@ -63,7 +69,7 @@ const featuredProperties: FeaturedProperty[] = [
     area: "Bahria Town",
     price: 85000,
     purpose: "rent",
-    type: "apartment",
+    type: "Apartments & Flats",
     bedrooms: 3,
     bathrooms: 3,
     size: "1600 sqft",
@@ -77,7 +83,7 @@ const featuredProperties: FeaturedProperty[] = [
     area: "Saddar",
     price: 220000,
     purpose: "rent",
-    type: "commercial",
+    type: "Commercial Spaces (Plaza / Building)",
     bedrooms: 0,
     bathrooms: 2,
     size: "2800 sqft",
@@ -91,7 +97,7 @@ const featuredProperties: FeaturedProperty[] = [
     area: "G-13",
     price: 34000000,
     purpose: "sale",
-    type: "plot",
+    type: "Plots (Residential)",
     bedrooms: 0,
     bathrooms: 0,
     size: "10 Marla",
@@ -105,7 +111,7 @@ const featuredProperties: FeaturedProperty[] = [
     area: "Khalabat Township",
     price: 45000,
     purpose: "rent",
-    type: "house",
+    type: "Houses",
     bedrooms: 2,
     bathrooms: 2,
     size: "5 Marla",
@@ -119,7 +125,7 @@ const featuredProperties: FeaturedProperty[] = [
     area: "Abbottabad City",
     price: 58000000,
     purpose: "sale",
-    type: "commercial",
+    type: "Commercial Spaces (Plaza / Building)",
     bedrooms: 0,
     bathrooms: 2,
     size: "2400 sqft",
@@ -163,7 +169,7 @@ export default function FeaturedPage() {
           area: property.area ?? "Area not provided",
           price: Number(property.price ?? 0),
           purpose: property.purpose === "rent" ? "rent" : "sale",
-          type: (property.propertyType ?? "house") as FeaturedProperty["type"],
+          type: normalizePropertyType(property.propertyType),
           bedrooms: Number(property.bedrooms ?? 0),
           bathrooms: Number(property.bathrooms ?? 0),
           size: property.areaSize || property.plotSize || "Size not specified",
@@ -188,11 +194,17 @@ export default function FeaturedPage() {
   );
 
   const cityOptions = useMemo(
-    () => ["all", ...new Set(allFeaturedProperties.map((item) => item.city))],
+    () => [
+      "all",
+      ...new Set([...cities, ...allFeaturedProperties.map((item) => item.city)]),
+    ],
     [allFeaturedProperties]
   );
   const typeOptions = useMemo(
-    () => ["all", ...new Set(allFeaturedProperties.map((item) => item.type))],
+    () => [
+      "all",
+      ...new Set([...propertyTypes, ...allFeaturedProperties.map((item) => item.type)]),
+    ],
     [allFeaturedProperties]
   );
   const tagOptions = useMemo(

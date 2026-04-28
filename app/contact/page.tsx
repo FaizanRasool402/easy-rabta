@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { contactPhoneDisplay } from "@/lib/contact";
 
 type ContactForm = {
   name: string;
@@ -79,7 +80,7 @@ export default function ContactPage() {
 
             <div className="mt-6 space-y-4 text-sm sm:text-base">
               <InfoRow label="Email" value="EasyRaabta@gmail.com" />
-              <InfoRow label="Phone" value="+92 300 1234567" />
+              <InfoRow label="Phone" value={contactPhoneDisplay} />
               <InfoRow
                 label="Location"
                 value="Multiple Cities Across Pakistan"

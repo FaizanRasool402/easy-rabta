@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { FiPhone, FiMail, FiMapPin } from "react-icons/fi";
+import { contactPhoneDisplay, contactPhoneHref } from "@/lib/contact";
 
 export default function Footer() {
   return (
@@ -51,8 +52,28 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/blog" className="hover:text-emerald-500 transition">
+                  Blog
+                </Link>
+              </li>
+              <li>
                 <Link href="/terms" className="hover:text-emerald-500 transition">
                   Terms & Conditions
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy-policy" className="hover:text-emerald-500 transition">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/refund-policy" className="hover:text-emerald-500 transition">
+                  Refund Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/disclaimer" className="hover:text-emerald-500 transition">
+                  Disclaimer
                 </Link>
               </li>
             </ul>
@@ -88,10 +109,10 @@ export default function Footer() {
               <li className="flex items-center text-sm text-gray-300 sm:text-base">
                 <FiPhone className="text-emerald-500 flex-shrink-0" size={20} />
                 <a
-                  href="tel:+923155759711"
+                  href={`tel:${contactPhoneHref}`}
                   className="ml-2 transition hover:text-emerald-400"
                 >
-                  +92 315 5759711
+                  {contactPhoneDisplay}
                 </a>
               </li>
               <li className="flex items-center text-sm text-gray-300 sm:text-base">

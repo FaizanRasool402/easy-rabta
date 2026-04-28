@@ -4,6 +4,14 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import DashboardShell from "@/components/DashboardShell";
+import {
+  isBedroomPropertyType,
+  isCoveredAreaPropertyType,
+  isPlotPropertyType,
+  normalizePropertyType,
+  propertyTypes,
+  type PropertyType,
+} from "@/lib/propertyTypes";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
@@ -12,7 +20,7 @@ type PropertyDetail = {
   _id: string;
   title: string;
   purpose: "sell" | "rent";
-  propertyType: "house" | "apartment" | "plot" | "commercial";
+  propertyType: PropertyType | string;
   city: string;
   area: string;
   address: string;
@@ -35,7 +43,7 @@ type PropertyDetail = {
 type FormState = {
   title: string;
   purpose: "sell" | "rent";
-  propertyType: "house" | "apartment" | "plot" | "commercial";
+  propertyType: PropertyType;
   city: string;
   area: string;
   address: string;
@@ -65,7 +73,7 @@ function toFormState(property: PropertyDetail): FormState {
   return {
     title: property.title ?? "",
     purpose: property.purpose ?? "sell",
-    propertyType: property.propertyType ?? "house",
+    propertyType: normalizePropertyType(property.propertyType),
     city: property.city ?? "",
     area: property.area ?? "",
     address: property.address ?? "",
@@ -131,10 +139,10 @@ export default function PropertyDetailPage() {
   }, [propertyId]);
 
   const isResidential = useMemo(() => {
-    return form?.propertyType === "house" || form?.propertyType === "apartment";
+    return isBedroomPropertyType(form?.propertyType ?? "");
   }, [form?.propertyType]);
-  const isCommercial = form?.propertyType === "commercial";
-  const isPlot = form?.propertyType === "plot";
+  const isCommercial = isCoveredAreaPropertyType(form?.propertyType ?? "");
+  const isPlot = isPlotPropertyType(form?.propertyType ?? "");
   const galleryImages = property?.images ?? [];
   const heroImage = galleryImages[activeImage] ?? galleryImages[0] ?? "";
 
@@ -416,17 +424,20 @@ export default function PropertyDetailPage() {
                         prev
                           ? {
                               ...prev,
-                              propertyType: event.target.value as FormState["propertyType"],
+                              propertyType: normalizePropertyType(
+                                event.target.value
+                              ),
                             }
                           : prev
                       )
                     }
                     className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 outline-none transition focus:border-emerald-500"
                   >
-                    <option value="house">House</option>
-                    <option value="apartment">Apartment</option>
-                    <option value="plot">Plot</option>
-                    <option value="commercial">Commercial</option>
+                    {propertyTypes.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
                   </select>
                 </Field>
               </section>
