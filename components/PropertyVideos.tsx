@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { FiMapPin } from "react-icons/fi";
 
 type VideoItem = {
@@ -60,8 +61,66 @@ function pickRandomVideos(count: number) {
   return shuffled.slice(0, count);
 }
 
+function VideoCard({ video }: { video: VideoItem }) {
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (!cardRef.current || typeof IntersectionObserver === "undefined") {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { rootMargin: "300px" }
+    );
+
+    observer.observe(cardRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={cardRef} className="relative h-56 w-full">
+      {isVisible ? (
+        <video
+          src={video.videoSrc}
+          poster={video.poster}
+          autoPlay
+          muted
+          loop
+          playsInline
+          controls
+          preload="metadata"
+          className="h-56 w-full object-cover"
+        />
+      ) : (
+        <Image
+          src={video.poster}
+          alt={video.title}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+          loading="lazy"
+          className="object-cover"
+        />
+      )}
+    </div>
+  );
+}
+
 export default function PropertyVideos() {
-  const videos = useMemo(() => pickRandomVideos(3), []);
+  const [videos, setVideos] = useState<VideoItem[]>(() => allVideos.slice(0, 3));
+
+  useEffect(() => {
+    setVideos(pickRandomVideos(3));
+  }, []);
 
   return (
     <section className="bg-white py-12 dark:bg-slate-900 sm:py-16">
@@ -86,19 +145,7 @@ export default function PropertyVideos() {
               key={video.id}
               className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800"
             >
-              <div className="relative">
-                <video
-                  src={video.videoSrc}
-                  poster={video.poster}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  controls
-                  preload="metadata"
-                  className="h-56 w-full object-cover"
-                />
-              </div>
+              <VideoCard video={video} />
 
               <div className="p-4">
                 <h3 className="text-base font-bold text-gray-900 dark:text-slate-100 sm:text-lg">

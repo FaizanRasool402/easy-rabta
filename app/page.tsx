@@ -1,17 +1,20 @@
+import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import PropertyTypeSection from "@/components/PropertyTypeSection";
 import StateCards from "@/components/StateCards";
-import VideoP from "@/components/VideoP";
-import PropertyVideos from "@/components/PropertyVideos";
-import LatestListings from "@/components/LatestListings";
 import Cities from "@/components/Cities";
-import Lifestyle from "@/components/Lifestyle";
 import Features from "@/components/Features";
-import Testimonials from "@/components/Testimonials";
 import Feeatures from "@/components/Feeatures";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
+
+const VideoP = dynamic(() => import("@/components/VideoP"));
+const PropertyVideos = dynamic(() => import("@/components/PropertyVideos"));
+const LatestListings = dynamic(() => import("@/components/LatestListings"));
+const Lifestyle = dynamic(() => import("@/components/Lifestyle"));
+const Testimonials = dynamic(() => import("@/components/Testimonials"));
+const HomeFAQs = dynamic(() => import("@/components/HomeFAQs"));
 
 export default function Home() {
   return (
@@ -29,6 +32,7 @@ export default function Home() {
         <Features />
         <Feeatures />
         <Testimonials />
+        <HomeFAQs />
         <CTA />
         <Footer />
       </main>

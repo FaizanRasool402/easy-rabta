@@ -29,10 +29,13 @@ export default function Navbar() {
   const userDisplayName = authUser?.name ?? "User";
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function getCurrentUser() {
       try {
         const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
           credentials: "include",
+          signal: controller.signal,
         });
 
         if (!response.ok) {
@@ -47,7 +50,20 @@ export default function Navbar() {
       }
     }
 
-    getCurrentUser();
+    const ric = (
+      window as Window &
+        typeof globalThis & {
+          requestIdleCallback?: (cb: () => void) => number;
+        }
+    ).requestIdleCallback;
+    const timerId = ric
+      ? ric(() => getCurrentUser())
+      : window.setTimeout(getCurrentUser, 1);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timerId);
+    };
   }, []);
 
   useEffect(() => {
@@ -121,6 +137,10 @@ export default function Navbar() {
                     <img
                       src={authUser.profileImage}
                       alt="Profile"
+                      width={32}
+                      height={32}
+                      loading="lazy"
+                      decoding="async"
                       className="h-8 w-8 rounded-full object-cover"
                     />
                   ) : (
@@ -209,6 +229,10 @@ export default function Navbar() {
                         <img
                           src={authUser.profileImage}
                           alt="Profile"
+                          width={36}
+                          height={36}
+                          loading="lazy"
+                          decoding="async"
                           className="h-9 w-9 rounded-full object-cover"
                         />
                       ) : (

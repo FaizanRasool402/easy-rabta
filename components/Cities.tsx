@@ -40,6 +40,8 @@ export default function Cities() {
                 alt={city.name}
                 width={600}
                 height={400}
+                sizes="(max-width: 768px) 100vw, 50vw"
+                loading="lazy"
                 className="w-full h-56 sm:h-64 md:h-80 object-cover group-hover:scale-110 transition duration-300"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />

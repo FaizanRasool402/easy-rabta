@@ -55,6 +55,7 @@ export default function VideoP() {
                       src="https://customer-leo8lubv91ct4vwd.cloudflarestream.com/1787ff53c6da29ad2d0b1629ba28a0f0/iframe?autoplay=true&muted=true&loop=true&preload=true&controls=false"
                       title="Easy Raabta Property Video"
                       className="h-full w-full"
+                      loading="lazy"
                       allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
                       allowFullScreen
                     />

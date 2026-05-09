@@ -61,6 +61,8 @@ function PropertyCard({ property }: { property: Property }) {
           alt={property.title}
           width={600}
           height={400}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          loading="lazy"
           className="w-full h-full object-cover"
         />
         <span

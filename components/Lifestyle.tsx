@@ -1,19 +1,46 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 const lifestyleImages = [
-  "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=2000",
-  "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=2000",
-  "https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=2000",
-  "https://images.pexels.com/photos/2724749/pexels-photo-2724749.jpeg?auto=compress&cs=tinysrgb&w=2000",
-  "https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=2000",
+  "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1280",
+  "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1280",
+  "https://images.pexels.com/photos/259588/pexels-photo-259588.jpeg?auto=compress&cs=tinysrgb&w=1280",
+  "https://images.pexels.com/photos/2724749/pexels-photo-2724749.jpeg?auto=compress&cs=tinysrgb&w=1280",
+  "https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1280",
 ];
 
 export default function Lifestyle() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isInView, setIsInView] = useState(false);
+  const sectionRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
+    if (!sectionRef.current || typeof IntersectionObserver === "undefined") {
+      setIsInView(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsInView(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isInView) return;
+
     const timer = window.setInterval(() => {
       setCurrentIndex((prev) => {
         let next = prev;
@@ -25,10 +52,13 @@ export default function Lifestyle() {
     }, 3500);
 
     return () => window.clearInterval(timer);
-  }, []);
+  }, [isInView]);
 
   return (
-    <section className="bg-gradient-to-br from-emerald-50 to-teal-50 py-12 dark:from-slate-950 dark:to-slate-900 sm:py-16">
+    <section
+      ref={sectionRef}
+      className="bg-gradient-to-br from-emerald-50 to-teal-50 py-12 dark:from-slate-950 dark:to-slate-900 sm:py-16"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-8 text-center sm:mb-12">
           <h2 className="mb-2 text-2xl font-bold text-gray-800 dark:text-slate-100 sm:text-3xl md:text-4xl">
@@ -41,13 +71,15 @@ export default function Lifestyle() {
 
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900">
           <div className="relative aspect-[21/9] min-h-[220px] w-full sm:min-h-[300px]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               key={lifestyleImages[currentIndex]}
               src={lifestyleImages[currentIndex]}
               alt="Luxury neighborhood view"
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1280px) 90vw, 1280px"
+              priority={false}
               loading="lazy"
-              className="h-full w-full object-cover object-center transition-opacity duration-500"
+              className="object-cover object-center transition-opacity duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent" />
 

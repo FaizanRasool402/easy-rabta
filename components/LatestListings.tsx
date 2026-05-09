@@ -129,6 +129,10 @@ export default function LatestListings() {
                 <img
                   src={listing.image}
                   alt={listing.title}
+                  width={600}
+                  height={400}
+                  loading="lazy"
+                  decoding="async"
                   className="h-56 w-full object-cover"
                 />
                 <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">

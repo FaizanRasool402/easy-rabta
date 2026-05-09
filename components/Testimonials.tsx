@@ -62,6 +62,8 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
           alt={testimonial.name}
           width={56}
           height={56}
+          sizes="56px"
+          loading="lazy"
           className="rounded-full object-cover ring-2 ring-emerald-100 dark:ring-emerald-900/40"
         />
         <div>
