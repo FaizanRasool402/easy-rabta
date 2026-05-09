@@ -11,54 +11,54 @@ type FAQ = {
 
 const faqs: FAQ[] = [
   {
-    question: "Easy Raabta kya hai?",
+    question: "What is Easy Raabta?",
     answer:
-      "Easy Raabta ek trusted Pakistani property platform hai jahan aap Islamabad, Rawalpindi, Haripur, Abbottabad, Hawlian aur Khanpur mein properties buy, rent ya sell kar saktay hain. Hum verified listings provide kartay hain taakay buyers aur renters safe aur reliable deals kar sakain.",
+      "Easy Raabta is a trusted Pakistani property platform where you can buy, rent, or sell properties across Islamabad, Rawalpindi, Haripur, Abbottabad, Hawlian, and Khanpur. We provide verified listings so buyers and renters can make safe and reliable deals.",
   },
   {
-    question: "Kya main Easy Raabta par apni property muft list kar sakta hoon?",
+    question: "Can I list my property for free on Easy Raabta?",
     answer:
-      "Jee haan. Aap free account bana kar apni property list kar saktay hain. Har user 5 images aur 2 videos ke saath property post kar sakta hai. Aapki listing verified hone ke baad homepage par nazar aayegi.",
+      "Yes, absolutely. You can create a free account and list your property right away. Each listing supports up to 5 images and 2 videos. Once your listing is verified by our admin team, it will appear on the homepage for everyone to see.",
   },
   {
-    question: "Kaunsi property types available hain?",
+    question: "What types of properties are available?",
     answer:
-      "Easy Raabta par aap Houses, Apartments & Flats, Portions & Floors, Plots (Residential & Commercial), Shops, Offices, Commercial Spaces (Plaza / Building), Agricultural Land / Farms, aur Farmhouses dekh aur list kar saktay hain.",
+      "Easy Raabta covers a wide range of property types including Houses, Apartments & Flats, Portions & Floors, Plots (Residential & Commercial), Shops, Offices, Commercial Spaces (Plaza / Building), Agricultural Land / Farms, and Farmhouses.",
   },
   {
-    question: "Kya yahan rent aur sale dono options hain?",
+    question: "Are both rent and sale options available?",
     answer:
-      "Bilkul. Aap homepage search mein 'For Rent' ya 'For Sale' tab select kar ke apni zaroorat ke mutabiq properties filter kar saktay hain. Har listing par clearly mention hota hai ke property rent ke liye hai ya sale ke liye.",
+      "Yes. You can select the 'For Rent' or 'For Sale' tab in the homepage search to filter properties based on your need. Every listing clearly indicates whether it is available for rent or for sale.",
   },
   {
-    question: "Main property owner se seedha kaise contact kar sakta hoon?",
+    question: "How can I contact a property owner directly?",
     answer:
-      "Har property card par 'Send Inquiry' button hota hai. Aap apna naam, email aur message likh kar seedha owner ko inquiry bhej saktay hain. Owner aapse directly contact karega. Aap WhatsApp button se bhi hum tak pahunch saktay hain: +92 315 5759711.",
+      "Each property card has a 'Send Inquiry' button. You can enter your name, email, and message to send an inquiry directly to the owner, who will then get back to you. You can also reach us via WhatsApp at +92 315 5759711.",
   },
   {
-    question: "Kon konsi cities covered hain?",
+    question: "Which cities are currently covered?",
     answer:
-      "Abhi tak Islamabad, Rawalpindi, Haripur, Abbottabad, Hawlian aur Khanpur cover ho rahi hain. Hum regularly naye areas add kar rahay hain. Islamabad mein 1,800+ aur Rawalpindi mein 1,200+ listings available hain.",
+      "We currently cover Islamabad, Rawalpindi, Haripur, Abbottabad, Hawlian, and Khanpur. We are regularly adding new areas. Islamabad has 1,800+ listings and Rawalpindi has 1,200+ listings available.",
   },
   {
-    question: "Kya listings verified hoti hain?",
+    question: "Are the listings verified?",
     answer:
-      "Easy Raabta ka admin team sab properties ko review karta hai. Sirf approved listings visitors ko nazar aati hain. Yahi wajah hai ke hamaray 300+ verified dealers aur 1,500+ satisfied customers hain.",
+      "Yes. Our admin team reviews every property before it goes live. Only approved listings are visible to visitors. This is why we have 300+ verified dealers and 1,500+ satisfied customers on our platform.",
   },
   {
-    question: "Dealer account kaise banate hain?",
+    question: "How do I register as a dealer?",
     answer:
-      "Homepage ke CTA section ya login page par 'Register as Dealer' option mauood hai. Account banana bilkul muft hai. Register karne ke baad aap apni properties manage karne ke liye dashboard access kar saktay hain.",
+      "You can click 'Register as Dealer' on the homepage or the login page. Registration is completely free. Once registered, you can access your dashboard to post, manage, and track all your property listings.",
   },
   {
-    question: "Ek property mein kitni images ya videos upload ho sakti hain?",
+    question: "How many images and videos can I upload per property?",
     answer:
-      "Aap ek property par maximum 5 images (har image 8 MB tak) aur 2 videos (har video 50 MB tak) upload kar saktay hain. Ziada images se buyers ko property behtar samajhne mein madad milti hai.",
+      "You can upload a maximum of 5 images (up to 8 MB each) and 2 videos (up to 50 MB each) per property listing. Adding more images helps buyers get a better understanding of the property.",
   },
   {
-    question: "Agar koi masla ho to kaise rabta karein?",
+    question: "How can I get in touch if I have an issue?",
     answer:
-      "Aap hamaray contact page par form fill kar saktay hain, email (EasyRaabta@gmail.com) kar saktay hain, ya phone/WhatsApp par +92 315 5759711 par seedha message kar saktay hain. Hum jald se jald jawab daingy.",
+      "You can fill out the form on our Contact page, send us an email at EasyRaabta@gmail.com, or reach us directly via phone or WhatsApp at +92 315 5759711. We will get back to you as soon as possible.",
   },
 ];
 
@@ -121,7 +121,7 @@ export default function HomeFAQs() {
               Frequently Asked Questions
             </h2>
             <p className="mt-2 text-sm text-gray-600 dark:text-slate-300 sm:text-base">
-              Easy Raabta ke baare mein common sawaalon ke jawab
+              Answers to common questions about Easy Raabta
             </p>
           </div>
 
@@ -135,13 +135,13 @@ export default function HomeFAQs() {
           {/* Bottom link */}
           <div className="mt-10 rounded-2xl border border-emerald-100 bg-emerald-50 p-5 text-center dark:border-emerald-900/40 dark:bg-emerald-950/20 sm:p-6">
             <p className="text-sm font-medium text-gray-700 dark:text-slate-300">
-              Aur sawaal hain?
+              Still have questions?
             </p>
             <Link
               href="/contact"
               className="mt-3 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
             >
-              Contact Karein
+              Contact Us
             </Link>
           </div>
         </div>
