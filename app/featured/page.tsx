@@ -11,6 +11,7 @@ import {
   propertyTypes,
   type PropertyType,
 } from "@/lib/propertyTypes";
+import ListingImage from "@/components/ListingImage";
 import { propertyCardImage } from "@/lib/propertyImage";
 
 type FeaturedProperty = {
@@ -390,8 +391,7 @@ export default function FeaturedPage() {
                         className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
                       >
                         <div className="relative">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
+                          <ListingImage
                             src={propertyItem.image}
                             alt={propertyItem.title}
                             className="h-52 w-full object-cover"

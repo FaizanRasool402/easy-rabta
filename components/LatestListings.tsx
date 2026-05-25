@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import ListingImage from "@/components/ListingImage";
 import PropertyInquiryButton from "@/components/PropertyInquiryButton";
 import { propertyCardImage } from "@/lib/propertyImage";
 
@@ -120,14 +121,9 @@ export default function LatestListings() {
               className="overflow-hidden rounded-3xl border border-gray-200 bg-gray-50 transition hover:-translate-y-0.5 hover:shadow-md"
             >
               <div className="relative">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <ListingImage
                   src={listing.image}
                   alt={listing.title}
-                  width={600}
-                  height={400}
-                  loading="lazy"
-                  decoding="async"
                   className="h-56 w-full object-cover"
                 />
                 <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
