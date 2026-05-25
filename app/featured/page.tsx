@@ -11,6 +11,7 @@ import {
   propertyTypes,
   type PropertyType,
 } from "@/lib/propertyTypes";
+import { propertyCardImage } from "@/lib/propertyImage";
 
 type FeaturedProperty = {
   id: string;
@@ -173,11 +174,7 @@ export default function FeaturedPage() {
           bedrooms: Number(property.bedrooms ?? 0),
           bathrooms: Number(property.bathrooms ?? 0),
           size: property.areaSize || property.plotSize || "Size not specified",
-          image: property.images?.[0]
-            ? property.images[0].startsWith("http") || property.images[0].startsWith("data:")
-              ? property.images[0]
-              : `${API_BASE_URL}${property.images[0]}`
-            : "/images/one.jpg",
+          image: propertyCardImage(property.images),
           tags: property.tag ? [property.tag] : ["New"],
         }));
 

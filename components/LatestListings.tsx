@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import PropertyInquiryButton from "@/components/PropertyInquiryButton";
+import { propertyCardImage } from "@/lib/propertyImage";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
@@ -34,12 +35,6 @@ type ListingCard = {
   image: string;
 };
 
-function imageUrl(path?: string) {
-  if (!path) return "/images/one.jpg";
-  if (path.startsWith("http") || path.startsWith("data:")) return path;
-  return `${API_BASE_URL}${path}`;
-}
-
 function formatPrice(value: number, purpose: "sell" | "rent") {
   const amount = new Intl.NumberFormat("en-PK").format(value);
   return purpose === "rent" ? `PKR ${amount} / month` : `PKR ${amount}`;
@@ -68,7 +63,7 @@ export default function LatestListings() {
           propertyType: property.propertyType ?? "Property",
           bedrooms: Number(property.bedrooms ?? 0),
           size: property.areaSize || property.plotSize || "Size not specified",
-          image: imageUrl(property.images?.[0]),
+          image: propertyCardImage(property.images),
         }));
 
         setListings(normalized);

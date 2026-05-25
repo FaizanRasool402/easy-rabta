@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import DashboardShell from "@/components/DashboardShell";
+import { propertyCardImage } from "@/lib/propertyImage";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
@@ -53,12 +54,6 @@ function extractId(id: RawProperty["_id"]) {
   return "";
 }
 
-function imageUrl(path?: string) {
-  if (!path) return "";
-  if (path.startsWith("http") || path.startsWith("data:")) return path;
-  return `${API_BASE_URL}${path}`;
-}
-
 function formatPrice(value: number) {
   return new Intl.NumberFormat("en-PK").format(value);
 }
@@ -74,7 +69,7 @@ function normalizeProperty(property: RawProperty): PropertyRecord {
     price: Number(property.price ?? 0),
     status: property.status ?? "Active",
     createdAt: property.createdAt ?? "",
-    image: property.images?.[0],
+    image: propertyCardImage(property.images),
   };
 }
 
@@ -227,7 +222,7 @@ export default function DashboardPage() {
                     {property.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
-                        src={imageUrl(property.image)}
+                        src={property.image}
                         alt={property.title}
                         className="h-full w-full object-cover"
                       />
