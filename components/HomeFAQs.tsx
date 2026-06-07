@@ -11,54 +11,44 @@ type FAQ = {
 
 const faqs: FAQ[] = [
   {
-    question: "What is Easy Raabta?",
+    question: "What is EasyRaabta.com?",
     answer:
-      "Easy Raabta is a trusted Pakistani property platform where you can buy, rent, or sell properties across Islamabad, Rawalpindi, Haripur, Abbottabad, Hawlian, and Khanpur. We provide verified listings so buyers and renters can make safe and reliable deals.",
+      "EasyRaabta.com is a platform where users can buy, sell, rent, and advertise properties, vehicles, jobs, services, and other classified listings across Pakistan.",
   },
   {
-    question: "Can I list my property for free on Easy Raabta?",
+    question: "Is posting an ad on EasyRaabta.com free?",
     answer:
-      "Yes, absolutely. You can create a free account and list your property right away. Each listing supports up to 5 images and 2 videos. Once your listing is verified by our admin team, it will appear on the homepage for everyone to see.",
+      "Yes. You can post your ad for free and connect directly with interested buyers, tenants, or customers.",
   },
   {
-    question: "What types of properties are available?",
+    question: "How do I post an ad?",
     answer:
-      "Easy Raabta covers a wide range of property types including Houses, Apartments & Flats, Portions & Floors, Plots (Residential & Commercial), Shops, Offices, Commercial Spaces (Plaza / Building), Agricultural Land / Farms, and Farmhouses.",
+      'Simply click the "Post Property for Free" or "Post Free Ad" button, create your listing, upload images, add details, and submit it for review.',
   },
   {
-    question: "Are both rent and sale options available?",
+    question: "Do I need an account to post an ad?",
     answer:
-      "Yes. You can select the 'For Rent' or 'For Sale' tab in the homepage search to filter properties based on your need. Every listing clearly indicates whether it is available for rent or for sale.",
+      "Yes. Creating an account helps you manage your listings, respond to inquiries, and update your ads anytime.",
   },
   {
-    question: "How can I contact a property owner directly?",
+    question: "How long does it take for my ad to become visible?",
     answer:
-      "Each property card has a 'Send Inquiry' button. You can enter your name, email, and message to send an inquiry directly to the owner, who will then get back to you. You can also reach us via WhatsApp at +92 315 5759711.",
+      "Most ads are reviewed and published within a short time after submission, provided they comply with our posting guidelines.",
   },
   {
-    question: "Which cities are currently covered?",
+    question: "Can I edit or delete my ad after posting?",
     answer:
-      "We currently cover Islamabad, Rawalpindi, Haripur, Abbottabad, Hawlian, and Khanpur. We are regularly adding new areas. Islamabad has 1,800+ listings and Rawalpindi has 1,200+ listings available.",
+      'Yes. Log in to your account, go to "My Listings," and edit, renew, or delete your ad whenever needed.',
   },
   {
-    question: "Are the listings verified?",
+    question: "Are there any charges for selling property on EasyRaabta.com?",
     answer:
-      "Yes. Our admin team reviews every property before it goes live. Only approved listings are visible to visitors. This is why we have 300+ verified dealers and 1,500+ satisfied customers on our platform.",
+      "Basic property listings are free. Premium promotional options may be available for users who want additional visibility.",
   },
   {
-    question: "How do I register as a dealer?",
+    question: "How can buyers contact me?",
     answer:
-      "You can click 'Register as Dealer' on the homepage or the login page. Registration is completely free. Once registered, you can access your dashboard to post, manage, and track all your property listings.",
-  },
-  {
-    question: "How many images and videos can I upload per property?",
-    answer:
-      "You can upload a maximum of 5 images (up to 8 MB each) and 2 videos (up to 50 MB each) per property listing. Adding more images helps buyers get a better understanding of the property.",
-  },
-  {
-    question: "How can I get in touch if I have an issue?",
-    answer:
-      "You can fill out the form on our Contact page, send us an email at EasyRaabta@gmail.com, or reach us directly via phone or WhatsApp at +92 315 5759711. We will get back to you as soon as possible.",
+      "Interested buyers can contact you using the phone number, WhatsApp, email, or contact options provided in your listing.",
   },
 ];
 
@@ -118,10 +108,10 @@ export default function HomeFAQs() {
               FAQ
             </span>
             <h2 className="mt-3 text-2xl font-bold text-gray-900 dark:text-slate-100 sm:text-3xl">
-              Frequently Asked Questions
+              Frequently Asked Questions (FAQs)
             </h2>
             <p className="mt-2 text-sm text-gray-600 dark:text-slate-300 sm:text-base">
-              Answers to common questions about Easy Raabta
+              Answers to common questions about EasyRaabta.com
             </p>
           </div>
 
