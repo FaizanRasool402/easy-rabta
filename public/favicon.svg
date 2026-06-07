@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Easy Raabta">
+  <rect width="512" height="512" rx="112" fill="#059669"/>
+  <path d="M103 246 256 116l153 130" fill="none" stroke="#ffffff" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M158 246v134h196V246" fill="none" stroke="#ffffff" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M225 380V282h62v98" fill="#ffffff"/>
+  <path d="M184 177h58l-28 44h-58z" fill="#0f172a"/>
+  <path d="M270 177h58l28 44h-58z" fill="#0f172a"/>
+  <text x="256" y="458" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="800" fill="#ffffff" letter-spacing="0">ER</text>
+</svg>

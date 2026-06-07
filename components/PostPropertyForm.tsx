@@ -34,7 +34,7 @@ type FormState = {
 
 const MAX_IMAGES = 5;
 const MAX_VIDEOS = 2;
-const MAX_IMAGE_SIZE_MB = 8;
+const MAX_IMAGE_SIZE_MB = 3;
 const MAX_VIDEO_SIZE_MB = 50;
 const TAG_OPTIONS = [
   "featured",
@@ -95,6 +95,7 @@ export default function PostPropertyForm({
   const [authLoading, setAuthLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
 
   const imagePreviewUrls = useMemo(
     () => images.map((file) => URL.createObjectURL(file)),
@@ -230,6 +231,10 @@ export default function PostPropertyForm({
       setError("Title, city, price, and contact phone are required.");
       return;
     }
+    if (!acceptedPrivacy) {
+      setError("Please accept the Privacy Policy before uploading your property.");
+      return;
+    }
     if (isCommercial && !form.coveredArea) {
       setError("Covered area is required for commercial properties.");
       return;
@@ -299,6 +304,7 @@ export default function PostPropertyForm({
       });
       setImages([]);
       setVideos([]);
+      setAcceptedPrivacy(false);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Network error. Please try again.";
@@ -615,10 +621,30 @@ export default function PostPropertyForm({
               </p>
             ) : null}
 
+            <label className="mt-5 flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={acceptedPrivacy}
+                onChange={(event) => setAcceptedPrivacy(event.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+              />
+              <span>
+                I agree to the{" "}
+                <Link
+                  href="/privacy-policy"
+                  target="_blank"
+                  className="font-semibold text-emerald-700 hover:text-emerald-800"
+                >
+                  Privacy Policy
+                </Link>{" "}
+                before uploading this property.
+              </span>
+            </label>
+
             <button
               type="submit"
-              disabled={submitting}
-              className="mt-6 w-full rounded-lg bg-emerald-600 py-3 font-semibold text-white transition hover:bg-emerald-700"
+              disabled={submitting || !acceptedPrivacy}
+              className="mt-6 w-full rounded-lg bg-emerald-600 py-3 font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {submitting ? "Submitting..." : "Submit Property"}
             </button>

@@ -26,6 +26,9 @@ type PropertyRecord = {
   status: string;
   createdAt: string;
   image?: string;
+  expiresAt?: string;
+  totalViews: number;
+  todayViews: number;
 };
 
 type RawProperty = {
@@ -38,7 +41,10 @@ type RawProperty = {
   price?: string | number;
   status?: string;
   createdAt?: string;
+  expiresAt?: string;
   images?: string[];
+  totalViews?: number;
+  dailyViews?: Array<{ date?: string; count?: number }>;
 };
 
 function extractId(id: RawProperty["_id"]) {
@@ -59,6 +65,10 @@ function formatPrice(value: number) {
 }
 
 function normalizeProperty(property: RawProperty): PropertyRecord {
+  const today = new Date().toISOString().slice(0, 10);
+  const todayViews =
+    property.dailyViews?.find((item) => item.date === today)?.count ?? 0;
+
   return {
     id: extractId(property._id),
     title: property.title ?? "Untitled property",
@@ -70,6 +80,9 @@ function normalizeProperty(property: RawProperty): PropertyRecord {
     status: property.status ?? "Active",
     createdAt: property.createdAt ?? "",
     image: propertyCardImage(property.images),
+    expiresAt: property.expiresAt ?? "",
+    totalViews: Number(property.totalViews ?? 0),
+    todayViews,
   };
 }
 
@@ -78,6 +91,7 @@ export default function DashboardPage() {
   const [propertiesLoading, setPropertiesLoading] = useState(true);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [properties, setProperties] = useState<PropertyRecord[]>([]);
+  const [deletingId, setDeletingId] = useState("");
 
   useEffect(() => {
     async function loadDashboard() {
@@ -111,6 +125,25 @@ export default function DashboardPage() {
 
     loadDashboard();
   }, []);
+
+  async function deleteProperty(propertyId: string) {
+    const confirmed = window.confirm("Delete this property listing?");
+    if (!confirmed) return;
+
+    setDeletingId(propertyId);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/properties/${propertyId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        setProperties((prev) => prev.filter((item) => item.id !== propertyId));
+      }
+    } finally {
+      setDeletingId("");
+    }
+  }
 
   const greetingName = useMemo(() => {
     if (!user?.name) return "User";
@@ -167,15 +200,15 @@ export default function DashboardPage() {
           <p className="mt-2 text-3xl font-bold text-gray-900">{properties.length}</p>
         </div>
         <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Account Email</p>
-          <p className="mt-2 truncate text-base font-semibold text-gray-900">
-            {user.email ?? "Not available"}
+          <p className="text-sm text-gray-500">Total Views</p>
+          <p className="mt-2 text-3xl font-bold text-gray-900">
+            {properties.reduce((sum, property) => sum + property.totalViews, 0)}
           </p>
         </div>
         <div className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-gray-500">Contact Number</p>
-          <p className="mt-2 text-base font-semibold text-gray-900">
-            {user.phone ?? "Not available"}
+          <p className="text-sm text-gray-500">Today Views</p>
+          <p className="mt-2 text-3xl font-bold text-gray-900">
+            {properties.reduce((sum, property) => sum + property.todayViews, 0)}
           </p>
         </div>
       </div>
@@ -212,9 +245,8 @@ export default function DashboardPage() {
         {!propertiesLoading && properties.length > 0 ? (
           <div className="mt-6 grid gap-4 xl:grid-cols-2">
             {properties.map((property) => (
-              <Link
+              <div
                 key={property.id}
-                href={`/dashboard/properties/${encodeURIComponent(property.id)}`}
                 className="overflow-hidden rounded-3xl border border-gray-200 bg-gray-50 transition hover:border-emerald-300 hover:shadow-sm"
               >
                 <div className="grid min-h-[220px] md:grid-cols-[220px_minmax(0,1fr)]">
@@ -238,7 +270,11 @@ export default function DashboardPage() {
                         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-600">
                           {property.purpose} • {property.propertyType}
                         </p>
-                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          property.status === "expired"
+                            ? "bg-rose-100 text-rose-700"
+                            : "bg-emerald-100 text-emerald-700"
+                        }`}>
                           {property.status}
                         </span>
                       </div>
@@ -257,9 +293,28 @@ export default function DashboardPage() {
                         ? `Posted on ${new Date(property.createdAt).toLocaleDateString()}`
                         : "Posting date not available"}
                     </p>
+                    <p className="mt-2 text-sm text-gray-500">
+                      Views: {property.totalViews} total, {property.todayViews} today
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Link
+                        href={`/dashboard/properties/${encodeURIComponent(property.id)}`}
+                        className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => deleteProperty(property.id)}
+                        disabled={deletingId === property.id}
+                        className="rounded-lg border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-60"
+                      >
+                        {deletingId === property.id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         ) : null}

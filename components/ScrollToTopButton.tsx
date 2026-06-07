@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FiArrowUp } from "react-icons/fi";
-import { FaWhatsapp } from "react-icons/fa";
-import { whatsappNumber } from "@/lib/contact";
+import Link from "next/link";
+import { FiArrowUp, FiMessageCircle } from "react-icons/fi";
 
 export default function ScrollToTopButton() {
   const [isVisible, setIsVisible] = useState(false);
@@ -25,15 +24,13 @@ export default function ScrollToTopButton() {
 
   return (
     <div className="fixed bottom-5 right-5 z-[60] flex flex-col items-end gap-3">
-      <a
-        href={`https://wa.me/${whatsappNumber}?text=Assalam%20o%20Alaikum%2C%20I%20want%20property%20details.`}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Chat on WhatsApp"
-        className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg ring-1 ring-[#25D366]/40 transition hover:bg-[#1fb859]"
+      <Link
+        href="/contact"
+        aria-label="Contact Us"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 text-white shadow-lg ring-1 ring-slate-700/30 transition hover:bg-slate-800 dark:bg-white dark:text-slate-950"
       >
-        <FaWhatsapp size={20} />
-      </a>
+        <FiMessageCircle size={20} />
+      </Link>
 
       {isVisible ? (
         <button

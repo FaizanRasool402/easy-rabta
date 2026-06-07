@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyInquiryButton from "@/components/PropertyInquiryButton";
 import { areasByCity, cities } from "@/components/Hero";
+import { contactPhoneDisplay } from "@/lib/contact";
 import {
   normalizePropertyType,
   propertyTypes as allPropertyTypes,
@@ -29,6 +30,8 @@ type RentProperty = {
   monthlyRent: number;
   size: string;
   image: string;
+  contactPhone?: string;
+  isPaidListing?: boolean;
 };
 
 type RentPageFilters = {
@@ -52,6 +55,8 @@ type ApiProperty = {
   plotSize?: string;
   images?: string[];
   purpose?: string;
+  contactPhone?: string;
+  isPaidListing?: boolean;
 };
 
 const API_BASE_URL =
@@ -68,6 +73,7 @@ const properties: RentProperty[] = [
     monthlyRent: 95000,
     size: "10 Marla",
     image: "/images/one.jpg",
+    contactPhone: contactPhoneDisplay,
   },
   {
     id: "r2",
@@ -79,6 +85,7 @@ const properties: RentProperty[] = [
     monthlyRent: 60000,
     size: "1200 sqft",
     image: "/images/two.jpg",
+    contactPhone: contactPhoneDisplay,
   },
   {
     id: "r3",
@@ -90,6 +97,7 @@ const properties: RentProperty[] = [
     monthlyRent: 180000,
     size: "2300 sqft",
     image: "/images/three.jpg",
+    contactPhone: contactPhoneDisplay,
   },
   {
     id: "r4",
@@ -101,6 +109,7 @@ const properties: RentProperty[] = [
     monthlyRent: 50000,
     size: "650 sqft",
     image: "/images/Islamabadd.jpg",
+    contactPhone: contactPhoneDisplay,
   },
 ];
 
@@ -153,6 +162,8 @@ export default function RentPage({
           monthlyRent: Number(property.price ?? 0),
           size: property.areaSize || property.plotSize || "Size not specified",
           image: propertyCardImage(property.images),
+          contactPhone: property.contactPhone,
+          isPaidListing: Boolean(property.isPaidListing),
         }));
 
         setApiProperties(normalized);
@@ -163,6 +174,18 @@ export default function RentPage({
   }, []);
 
   const listingSource = useMemo(() => [...apiProperties, ...properties], [apiProperties]);
+  const viewedPropertyIds = useMemo(
+    () => apiProperties.map((property) => property.inquiryId).filter(Boolean),
+    [apiProperties]
+  );
+
+  useEffect(() => {
+    viewedPropertyIds.forEach((id) => {
+      fetch(`${API_BASE_URL}/api/properties/${id}/view`, { method: "POST" }).catch(
+        () => {}
+      );
+    });
+  }, [viewedPropertyIds]);
 
   const cityOptions = useMemo(
     () => ["all", ...new Set([...cities, ...listingSource.map((item) => item.city)])],
@@ -203,12 +226,26 @@ export default function RentPage({
     });
 
     if (sortBy === "price_low")
-      return [...results].sort((a, b) => a.monthlyRent - b.monthlyRent);
+      return [...results].sort(
+        (a, b) =>
+          Number(b.isPaidListing) - Number(a.isPaidListing) ||
+          a.monthlyRent - b.monthlyRent
+      );
     if (sortBy === "price_high")
-      return [...results].sort((a, b) => b.monthlyRent - a.monthlyRent);
+      return [...results].sort(
+        (a, b) =>
+          Number(b.isPaidListing) - Number(a.isPaidListing) ||
+          b.monthlyRent - a.monthlyRent
+      );
     if (sortBy === "beds_high")
-      return [...results].sort((a, b) => b.bedrooms - a.bedrooms);
-    return results;
+      return [...results].sort(
+        (a, b) =>
+          Number(b.isPaidListing) - Number(a.isPaidListing) ||
+          b.bedrooms - a.bedrooms
+      );
+    return [...results].sort(
+      (a, b) => Number(b.isPaidListing) - Number(a.isPaidListing)
+    );
   }, [area, bedrooms, city, listingSource, maxPrice, minPrice, propertyType, sortBy]);
 
   function resetFilters() {
@@ -254,6 +291,12 @@ export default function RentPage({
             <p className="mt-2 text-gray-600 dark:text-slate-300">
               Flexible rental options for families, professionals, and businesses.
             </p>
+            <a
+              href={`tel:${contactPhoneDisplay.replace(/[^\d+]/g, "")}`}
+              className="mt-4 inline-flex rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+            >
+              Contact: {contactPhoneDisplay}
+            </a>
           </div>
 
           <div className="mt-7 grid gap-6 lg:grid-cols-12">
@@ -282,6 +325,22 @@ export default function RentPage({
                       setArea("all");
                     }}
                   />
+                  <input
+                    type="search"
+                    value={city === "all" ? "" : city}
+                    onChange={(event) => {
+                      setCity(event.target.value || "all");
+                      setArea("all");
+                    }}
+                    list="rent-city-options"
+                    placeholder="Search city"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-emerald-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+                  />
+                  <datalist id="rent-city-options">
+                    {cityOptions.filter((option) => option !== "all").map((option) => (
+                      <option key={option} value={option} />
+                    ))}
+                  </datalist>
                   <SelectField
                     label="Area"
                     value={area}
@@ -381,6 +440,11 @@ export default function RentPage({
                         <p className="mt-3 text-xl font-extrabold text-emerald-700 dark:text-emerald-400">
                           {formatPrice(property.monthlyRent)} / month
                         </p>
+                        {property.isPaidListing ? (
+                          <span className="mt-3 inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
+                            Paid Listing
+                          </span>
+                        ) : null}
                         <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-gray-700 dark:text-slate-200">
                           <span className="rounded bg-gray-100 px-2.5 py-1 dark:bg-slate-800">
                             {property.propertyType}
@@ -395,8 +459,8 @@ export default function RentPage({
                           ) : null}
                         </div>
                         <PropertyInquiryButton
-                          propertyId={property.inquiryId}
                           propertyTitle={property.title}
+                          contactPhone={property.contactPhone}
                         />
                       </div>
                     </article>

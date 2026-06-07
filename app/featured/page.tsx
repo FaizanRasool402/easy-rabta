@@ -28,6 +28,7 @@ type FeaturedProperty = {
   size: string;
   image: string;
   tags: string[];
+  contactPhone?: string;
 };
 
 type ApiProperty = {
@@ -44,6 +45,7 @@ type ApiProperty = {
   plotSize?: string;
   images?: string[];
   tag?: string;
+  contactPhone?: string;
 };
 
 const API_BASE_URL =
@@ -177,6 +179,7 @@ export default function FeaturedPage() {
           size: property.areaSize || property.plotSize || "Size not specified",
           image: propertyCardImage(property.images),
           tags: property.tag ? [property.tag] : ["New"],
+          contactPhone: property.contactPhone,
         }));
 
         setApiFeaturedProperties(normalized);
@@ -432,8 +435,8 @@ export default function FeaturedPage() {
                             ))}
                           </div>
                           <PropertyInquiryButton
-                            propertyId={propertyItem.inquiryId}
                             propertyTitle={propertyItem.title}
+                            contactPhone={propertyItem.contactPhone}
                           />
                         </div>
                       </article>

@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyInquiryButton from "@/components/PropertyInquiryButton";
 import { areasByCity, cities } from "@/components/Hero";
+import { contactPhoneDisplay } from "@/lib/contact";
 import {
   normalizePropertyType,
   propertyTypes as allPropertyTypes,
@@ -29,6 +30,8 @@ type BuyProperty = {
   price: number;
   size: string;
   image: string;
+  contactPhone?: string;
+  isPaidListing?: boolean;
 };
 
 type BuyPageFilters = {
@@ -52,6 +55,8 @@ type ApiProperty = {
   plotSize?: string;
   images?: string[];
   purpose?: string;
+  contactPhone?: string;
+  isPaidListing?: boolean;
 };
 
 const API_BASE_URL =
@@ -68,6 +73,7 @@ const properties: BuyProperty[] = [
     price: 45000000,
     size: "5 Marla",
     image: "/images/one.jpg",
+    contactPhone: contactPhoneDisplay,
   },
   {
     id: "b2",
@@ -79,6 +85,7 @@ const properties: BuyProperty[] = [
     price: 34000000,
     size: "10 Marla",
     image: "/images/two.jpg",
+    contactPhone: contactPhoneDisplay,
   },
   {
     id: "b3",
@@ -90,6 +97,7 @@ const properties: BuyProperty[] = [
     price: 25000000,
     size: "1700 sqft",
     image: "/images/three.jpg",
+    contactPhone: contactPhoneDisplay,
   },
   {
     id: "b4",
@@ -101,6 +109,7 @@ const properties: BuyProperty[] = [
     price: 62000000,
     size: "2100 sqft",
     image: "/images/rwalpindi.jpg",
+    contactPhone: contactPhoneDisplay,
   },
 ];
 
@@ -153,6 +162,8 @@ export default function BuyPage({
           price: Number(property.price ?? 0),
           size: property.areaSize || property.plotSize || "Size not specified",
           image: propertyCardImage(property.images),
+          contactPhone: property.contactPhone,
+          isPaidListing: Boolean(property.isPaidListing),
         }));
 
         setApiProperties(normalized);
@@ -163,6 +174,18 @@ export default function BuyPage({
   }, []);
 
   const listingSource = useMemo(() => [...apiProperties, ...properties], [apiProperties]);
+  const viewedPropertyIds = useMemo(
+    () => apiProperties.map((property) => property.inquiryId).filter(Boolean),
+    [apiProperties]
+  );
+
+  useEffect(() => {
+    viewedPropertyIds.forEach((id) => {
+      fetch(`${API_BASE_URL}/api/properties/${id}/view`, { method: "POST" }).catch(
+        () => {}
+      );
+    });
+  }, [viewedPropertyIds]);
 
   const cityOptions = useMemo(
     () => ["all", ...new Set([...cities, ...listingSource.map((item) => item.city)])],
@@ -202,11 +225,13 @@ export default function BuyPage({
       return true;
     });
 
-    if (sortBy === "price_low") return [...results].sort((a, b) => a.price - b.price);
-    if (sortBy === "price_high") return [...results].sort((a, b) => b.price - a.price);
+    if (sortBy === "price_low")
+      return [...results].sort((a, b) => Number(b.isPaidListing) - Number(a.isPaidListing) || a.price - b.price);
+    if (sortBy === "price_high")
+      return [...results].sort((a, b) => Number(b.isPaidListing) - Number(a.isPaidListing) || b.price - a.price);
     if (sortBy === "beds_high")
-      return [...results].sort((a, b) => b.bedrooms - a.bedrooms);
-    return results;
+      return [...results].sort((a, b) => Number(b.isPaidListing) - Number(a.isPaidListing) || b.bedrooms - a.bedrooms);
+    return [...results].sort((a, b) => Number(b.isPaidListing) - Number(a.isPaidListing));
   }, [area, bedrooms, city, listingSource, maxPrice, minPrice, propertyType, sortBy]);
 
   function resetFilters() {
@@ -273,6 +298,22 @@ export default function BuyPage({
                       setArea("all");
                     }}
                   />
+                  <input
+                    type="search"
+                    value={city === "all" ? "" : city}
+                    onChange={(event) => {
+                      setCity(event.target.value || "all");
+                      setArea("all");
+                    }}
+                    list="buy-city-options"
+                    placeholder="Search city"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-emerald-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+                  />
+                  <datalist id="buy-city-options">
+                    {cityOptions.filter((option) => option !== "all").map((option) => (
+                      <option key={option} value={option} />
+                    ))}
+                  </datalist>
                   <SelectField
                     label="Area"
                     value={area}
@@ -372,6 +413,11 @@ export default function BuyPage({
                         <p className="mt-3 text-xl font-extrabold text-emerald-700 dark:text-emerald-400">
                           {formatPrice(property.price)}
                         </p>
+                        {property.isPaidListing ? (
+                          <span className="mt-3 inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
+                            Paid Listing
+                          </span>
+                        ) : null}
                         <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-gray-700 dark:text-slate-200">
                           <span className="rounded bg-gray-100 px-2.5 py-1 dark:bg-slate-800">
                             {property.propertyType}
@@ -386,8 +432,8 @@ export default function BuyPage({
                           ) : null}
                         </div>
                         <PropertyInquiryButton
-                          propertyId={property.inquiryId}
                           propertyTitle={property.title}
+                          contactPhone={property.contactPhone}
                         />
                       </div>
                     </article>

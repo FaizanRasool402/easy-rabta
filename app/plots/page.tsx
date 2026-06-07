@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { contactPhoneDisplay, contactPhoneHref } from "@/lib/contact";
 
 export default function PlotsPage() {
   return (
@@ -11,6 +12,12 @@ export default function PlotsPage() {
           <p className="mt-2 text-gray-600">
             Residential and commercial plots are listed here.
           </p>
+          <a
+            href={`tel:${contactPhoneHref}`}
+            className="mt-5 inline-flex rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+          >
+            Contact: {contactPhoneDisplay}
+          </a>
         </div>
       </main>
       <Footer />

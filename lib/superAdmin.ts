@@ -8,6 +8,8 @@ export type RawProperty = {
   price?: number | string;
   status?: string;
   createdAt?: string;
+  totalViews?: number;
+  dailyViews?: Array<{ date?: string; count?: number }>;
   images?: string[];
 };
 
@@ -21,10 +23,14 @@ export type PropertyRecord = {
   price: number;
   status: string;
   createdAt: string;
+  totalViews: number;
+  todayViews: number;
   images: string[];
 };
 
 export function normalizeProperty(property: RawProperty, index: number): PropertyRecord {
+  const today = new Date().toISOString().slice(0, 10);
+
   return {
     id: property._id ?? `property-${index}`,
     title: property.title ?? "Untitled property",
@@ -35,6 +41,8 @@ export function normalizeProperty(property: RawProperty, index: number): Propert
     price: Number(property.price ?? 0),
     status: property.status ?? "active",
     createdAt: property.createdAt ?? "",
+    totalViews: Number(property.totalViews ?? 0),
+    todayViews: property.dailyViews?.find((item) => item.date === today)?.count ?? 0,
     images: property.images ?? [],
   };
 }

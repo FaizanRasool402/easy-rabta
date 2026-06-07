@@ -21,12 +21,26 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://easyraabta.com"
+  ),
   title: "Easy Raabta",
   description: "Property platform for buying, renting, and posting listings.",
   icons: {
-    icon: "/images/logo.png",
-    shortcut: "/images/logo.png",
-    apple: "/images/logo.png",
+    icon: [
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+    ],
+    shortcut: "/icon.png",
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  openGraph: {
+    title: "Easy Raabta",
+    description: "Property platform for buying, renting, and posting listings.",
+    siteName: "Easy Raabta",
+    images: [{ url: "/images/logo.png" }],
   },
 };
 
@@ -48,9 +62,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/images/logo.png" type="image/png" sizes="any" />
-        <link rel="shortcut icon" href="/images/logo.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/images/logo.png" />
+        <link rel="icon" href="/icon.png" type="image/png" sizes="512x512" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="alternate icon" href="/favicon-32x32.png" type="image/png" />
         <link rel="preconnect" href={API_BASE_URL} crossOrigin="" />
         <link rel="dns-prefetch" href={API_BASE_URL} />
         <link rel="preconnect" href="https://images.pexels.com" crossOrigin="" />

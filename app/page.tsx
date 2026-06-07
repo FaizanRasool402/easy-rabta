@@ -6,6 +6,7 @@ import StateCards from "@/components/StateCards";
 import Cities from "@/components/Cities";
 import Features from "@/components/Features";
 import Feeatures from "@/components/Feeatures";
+import FaqSection from "@/components/FaqSection";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
 
@@ -23,6 +24,7 @@ export default function Home() {
       <main>
         <Hero />
         <PropertyTypeSection />
+        <FaqSection />
         <StateCards />
         <VideoP />
         <PropertyVideos />

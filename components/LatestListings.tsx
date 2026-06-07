@@ -21,6 +21,7 @@ type PublicProperty = {
   areaSize?: string;
   plotSize?: string;
   images?: string[];
+  contactPhone?: string;
 };
 
 type ListingCard = {
@@ -34,6 +35,7 @@ type ListingCard = {
   bedrooms: number;
   size: string;
   image: string;
+  contactPhone?: string;
 };
 
 function formatPrice(value: number, purpose: "sell" | "rent") {
@@ -65,6 +67,7 @@ export default function LatestListings() {
           bedrooms: Number(property.bedrooms ?? 0),
           size: property.areaSize || property.plotSize || "Size not specified",
           image: propertyCardImage(property.images),
+          contactPhone: property.contactPhone,
         }));
 
         setListings(normalized);
@@ -157,8 +160,8 @@ export default function LatestListings() {
                 </div>
 
                 <PropertyInquiryButton
-                  propertyId={listing.id}
                   propertyTitle={listing.title}
+                  contactPhone={listing.contactPhone}
                 />
               </div>
             </article>

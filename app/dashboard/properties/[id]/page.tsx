@@ -1,8 +1,8 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import DashboardShell from "@/components/DashboardShell";
 import {
   isBedroomPropertyType,
@@ -36,6 +36,10 @@ type PropertyDetail = {
   contactPhone: string;
   images?: string[];
   videos?: string[];
+  status?: string;
+  expiresAt?: string;
+  totalViews?: number;
+  dailyViews?: Array<{ date?: string; count?: number }>;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -92,6 +96,7 @@ function toFormState(property: PropertyDetail): FormState {
 
 export default function PropertyDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const propertyId = params?.id;
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -100,6 +105,8 @@ export default function PropertyDetailPage() {
   const [property, setProperty] = useState<PropertyDetail | null>(null);
   const [form, setForm] = useState<FormState | null>(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     async function loadProperty() {
@@ -145,6 +152,36 @@ export default function PropertyDetailPage() {
   const isPlot = isPlotPropertyType(form?.propertyType ?? "");
   const galleryImages = property?.images ?? [];
   const heroImage = galleryImages[activeImage] ?? galleryImages[0] ?? "";
+  const today = new Date().toISOString().slice(0, 10);
+  const todayViews =
+    property?.dailyViews?.find((item) => item.date === today)?.count ?? 0;
+
+  function handleImageChange(event: ChangeEvent<HTMLInputElement>) {
+    const selected = Array.from(event.target.files ?? []);
+    if (!selected.length || !property) return;
+
+    if ((property.images?.length ?? 0) + newImages.length + selected.length > 5) {
+      setError("Max 5 images allowed.");
+      event.target.value = "";
+      return;
+    }
+
+    setError("");
+    setNewImages((prev) => [...prev, ...selected]);
+    event.target.value = "";
+  }
+
+  function removeExistingImage(index: number) {
+    setProperty((prev) =>
+      prev
+        ? {
+            ...prev,
+            images: (prev.images ?? []).filter((_, itemIndex) => itemIndex !== index),
+          }
+        : prev
+    );
+    setActiveImage(0);
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -155,11 +192,18 @@ export default function PropertyDetailPage() {
     setMessage("");
 
     try {
+      const formData = new FormData();
+      Object.entries(form).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      formData.append("existingImages", JSON.stringify(property?.images ?? []));
+      formData.append("existingVideos", JSON.stringify(property?.videos ?? []));
+      newImages.forEach((file) => formData.append("images", file));
+
       const response = await fetch(`${API_BASE_URL}/api/properties/${propertyId}`, {
         method: "PUT",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: formData,
       });
 
       const data = (await response.json()) as {
@@ -175,6 +219,7 @@ export default function PropertyDetailPage() {
       if (data.property) {
         setProperty(data.property);
         setForm(toFormState(data.property));
+        setNewImages([]);
       }
 
       setMessage(data.message ?? "Property updated successfully.");
@@ -182,6 +227,30 @@ export default function PropertyDetailPage() {
       setError("Property update failed.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    const confirmed = window.confirm("Delete this property listing?");
+    if (!confirmed) return;
+
+    setDeleting(true);
+    setError("");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/properties/${propertyId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = (await response.json()) as { message?: string };
+      if (!response.ok) {
+        setError(data.message ?? "Property delete failed.");
+        return;
+      }
+      router.push("/dashboard");
+    } catch {
+      setError("Property delete failed.");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -270,8 +339,12 @@ export default function PropertyDetailPage() {
                         {property.title}
                       </h2>
                     </div>
-                    <span className="rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700">
-                      Active
+                    <span className={`rounded-full px-4 py-2 text-sm font-semibold ${
+                      property.status === "expired"
+                        ? "bg-rose-100 text-rose-700"
+                        : "bg-emerald-100 text-emerald-700"
+                    }`}>
+                      {property.status ?? "active"}
                     </span>
                   </div>
 
@@ -330,6 +403,16 @@ export default function PropertyDetailPage() {
                       label="Contact Phone"
                       value={property.contactPhone || "Not available"}
                     />
+                    <MetaRow label="Total Views" value={String(property.totalViews ?? 0)} />
+                    <MetaRow label="Today Views" value={String(todayViews)} />
+                    <MetaRow
+                      label="Expires"
+                      value={
+                        property.expiresAt
+                          ? new Date(property.expiresAt).toLocaleDateString()
+                          : "30 days after posting"
+                      }
+                    />
                   </div>
                 </div>
               </div>
@@ -378,6 +461,14 @@ export default function PropertyDetailPage() {
                   Update the required details and save your changes.
                 </p>
               </div>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting}
+                className="rounded-lg border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:opacity-60"
+              >
+                {deleting ? "Deleting..." : "Delete Property"}
+              </button>
             </div>
 
             <div className="mt-6 grid gap-6">
@@ -586,6 +677,43 @@ export default function PropertyDetailPage() {
                 rows={5}
                 className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-500"
               />
+            </Field>
+
+            <Field label="Images" className="mt-4">
+              <div className="grid gap-3 sm:grid-cols-3">
+                {(property.images ?? []).map((image, index) => (
+                  <div
+                    key={`${image}-${index}`}
+                    className="overflow-hidden rounded-2xl border border-gray-200"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={mediaUrl(image)}
+                      alt={`${property.title} ${index + 1}`}
+                      className="h-28 w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeExistingImage(index)}
+                      className="w-full bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                className="mt-3 w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 file:mr-3 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:font-medium file:text-emerald-700"
+              />
+              {newImages.length > 0 ? (
+                <p className="mt-2 text-sm text-gray-600">
+                  {newImages.length} new image(s) selected.
+                </p>
+              ) : null}
             </Field>
 
             {error ? (

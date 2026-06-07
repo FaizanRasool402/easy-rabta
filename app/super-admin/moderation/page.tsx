@@ -20,6 +20,7 @@ export default function SuperAdminModerationPage() {
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<PropertyRecord[]>([]);
   const [filter, setFilter] = useState<ModerationFilter>("flagged");
+  const [deletingId, setDeletingId] = useState("");
 
   useEffect(() => {
     async function loadItems() {
@@ -38,6 +39,25 @@ export default function SuperAdminModerationPage() {
 
     loadItems();
   }, []);
+
+  async function deleteListing(propertyId: string) {
+    const confirmed = window.confirm("Delete this property listing?");
+    if (!confirmed) return;
+
+    setDeletingId(propertyId);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/properties/${propertyId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        setItems((prev) => prev.filter((item) => item.id !== propertyId));
+      }
+    } finally {
+      setDeletingId("");
+    }
+  }
 
   const moderationQueue = useMemo(
     () =>
@@ -183,9 +203,11 @@ export default function SuperAdminModerationPage() {
                   </div>
                   <div className="rounded-2xl bg-slate-900 px-4 py-3">
                     <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
-                      Status
+                      Views
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-white">{item.status}</p>
+                    <p className="mt-1 text-sm font-semibold text-white">
+                      {item.totalViews} total / {item.todayViews} today
+                    </p>
                   </div>
                   <div className="rounded-2xl bg-slate-900 px-4 py-3">
                     <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
@@ -208,9 +230,11 @@ export default function SuperAdminModerationPage() {
                   </button>
                   <button
                     type="button"
-                    className="rounded-xl border border-rose-400/30 px-4 py-2 text-sm font-semibold text-rose-200 transition hover:bg-rose-500/10"
+                    onClick={() => deleteListing(item.id)}
+                    disabled={deletingId === item.id}
+                    className="rounded-xl border border-rose-400/30 px-4 py-2 text-sm font-semibold text-rose-200 transition hover:bg-rose-500/10 disabled:opacity-60"
                   >
-                    Reject Listing
+                    {deletingId === item.id ? "Deleting..." : "Delete Listing"}
                   </button>
                   <button
                     type="button"
