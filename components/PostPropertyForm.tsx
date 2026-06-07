@@ -4,6 +4,7 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { areasByCity, cities } from "@/components/Hero";
 import { isSuperAdminUser } from "@/lib/auth";
+import { contactPhoneDisplay, contactPhoneHref, whatsappNumber } from "@/lib/contact";
 import {
   isBedroomPropertyType,
   isCoveredAreaPropertyType,
@@ -30,6 +31,7 @@ type FormState = {
   description: string;
   contactName: string;
   contactPhone: string;
+  paymentReference: string;
 };
 
 const MAX_IMAGES = 5;
@@ -45,6 +47,12 @@ const TAG_OPTIONS = [
   "new",
   "budget",
 ];
+const PAID_TAGS = ["premium", "hot-deal", "investor-pick"];
+const PAYMENT_ACCOUNT = {
+  bank: "Admin Bank Account",
+  title: "EasyRaabta.com",
+  account: "Contact admin for bank account number",
+};
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
 
@@ -86,16 +94,18 @@ export default function PostPropertyForm({
     description: "",
     contactName: "",
     contactPhone: "",
+    paymentReference: "",
   });
   const [images, setImages] = useState<File[]>([]);
   const [videos, setVideos] = useState<File[]>([]);
+  const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
+  const [acceptedPolicies, setAcceptedPolicies] = useState(false);
 
   const imagePreviewUrls = useMemo(
     () => images.map((file) => URL.createObjectURL(file)),
@@ -108,6 +118,10 @@ export default function PostPropertyForm({
   const isResidential = isBedroomPropertyType(form.propertyType);
   const isCommercial = isCoveredAreaPropertyType(form.propertyType);
   const isPlot = isPlotPropertyType(form.propertyType);
+  const isPaidTag = PAID_TAGS.includes(form.tag);
+  const helpText = encodeURIComponent(
+    "Assalam o Alaikum, I need help with posting or payment on EasyRaabta.com."
+  );
   const loginHref = withinDashboard
     ? "/login?redirect=/dashboard/add-property"
     : "/login?redirect=/post-property";
@@ -231,8 +245,16 @@ export default function PostPropertyForm({
       setError("Title, city, price, and contact phone are required.");
       return;
     }
-    if (!acceptedPrivacy) {
-      setError("Please accept the Privacy Policy before uploading your property.");
+    if (!acceptedPolicies) {
+      setError(
+        "Please agree to the Terms & Conditions and Privacy Policy before uploading your property."
+      );
+      return;
+    }
+    if (isPaidTag && (!form.paymentReference || !paymentProof)) {
+      setError(
+        "Paid listings require payment reference and payment proof screenshot."
+      );
       return;
     }
     if (isCommercial && !form.coveredArea) {
@@ -263,9 +285,13 @@ export default function PostPropertyForm({
       formData.append("description", form.description);
       formData.append("contactName", form.contactName);
       formData.append("contactPhone", form.contactPhone);
+      formData.append("paymentReference", form.paymentReference);
 
       images.forEach((file) => formData.append("images", file));
       videos.forEach((file) => formData.append("videos", file));
+      if (paymentProof) {
+        formData.append("paymentProof", paymentProof);
+      }
 
       const response = await fetch(`${API_BASE_URL}/api/properties`, {
         method: "POST",
@@ -301,10 +327,12 @@ export default function PostPropertyForm({
         description: "",
         contactName: "",
         contactPhone: "",
+        paymentReference: "",
       });
       setImages([]);
       setVideos([]);
-      setAcceptedPrivacy(false);
+      setPaymentProof(null);
+      setAcceptedPolicies(false);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Network error. Please try again.";
@@ -357,11 +385,40 @@ export default function PostPropertyForm({
         <>
           <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-5 sm:p-7">
             <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-              Post Property
+              + Post Free Property
             </h1>
             <p className="mt-2 text-sm text-gray-600">
               Add your property details. You can upload up to 5 images and 2 videos.
             </p>
+            <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm leading-6 text-emerald-900">
+              <p className="font-semibold">Need Help?</p>
+              <p>
+                If you have any issue, contact us on WhatsApp or call us at{" "}
+                <a
+                  href={`tel:${contactPhoneHref}`}
+                  className="font-semibold underline"
+                >
+                  {contactPhoneDisplay}
+                </a>
+                .
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <a
+                  href={`https://wa.me/${whatsappNumber}?text=${helpText}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white"
+                >
+                  WhatsApp Help
+                </a>
+                <a
+                  href={`tel:${contactPhoneHref}`}
+                  className="rounded-lg border border-emerald-300 px-3 py-2 text-xs font-semibold text-emerald-800"
+                >
+                  Call Support
+                </a>
+              </div>
+            </div>
           </div>
 
           <form
@@ -414,6 +471,29 @@ export default function PostPropertyForm({
                   value: item,
                 }))}
               />
+              {isPaidTag ? (
+                <div className="sm:col-span-2 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                  <p className="font-semibold">Paid Listing Payment</p>
+                  <p className="mt-1">
+                    Paid listings show on top after admin verifies your bank
+                    payment.
+                  </p>
+                  <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                    <p>
+                      <span className="font-semibold">Bank:</span>{" "}
+                      {PAYMENT_ACCOUNT.bank}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Title:</span>{" "}
+                      {PAYMENT_ACCOUNT.title}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Account:</span>{" "}
+                      {PAYMENT_ACCOUNT.account}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
               <Select
                 label="City"
                 value={form.city}
@@ -610,6 +690,36 @@ export default function PostPropertyForm({
               </div>
             </div>
 
+            {isPaidTag ? (
+              <div className="mt-6 grid gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4 sm:grid-cols-2">
+                <Input
+                  label="Payment Reference / Transaction ID"
+                  value={form.paymentReference}
+                  onChange={(value) => updateField("paymentReference", value)}
+                  placeholder="Bank transfer reference"
+                  required
+                />
+                <div>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Payment Proof Screenshot
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) =>
+                      setPaymentProof(event.target.files?.[0] ?? null)
+                    }
+                    className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 file:mr-3 file:rounded-md file:border-0 file:bg-emerald-50 file:px-3 file:py-2 file:text-emerald-700"
+                  />
+                  {paymentProof ? (
+                    <p className="mt-2 text-xs text-gray-600">
+                      Selected: {paymentProof.name}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
+
             {error ? (
               <p className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
                 {error}
@@ -624,29 +734,37 @@ export default function PostPropertyForm({
             <label className="mt-5 flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
               <input
                 type="checkbox"
-                checked={acceptedPrivacy}
-                onChange={(event) => setAcceptedPrivacy(event.target.checked)}
+                checked={acceptedPolicies}
+                onChange={(event) => setAcceptedPolicies(event.target.checked)}
                 className="mt-1 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
               />
               <span>
                 I agree to the{" "}
+                <Link
+                  href="/terms"
+                  target="_blank"
+                  className="font-semibold text-emerald-700 hover:text-emerald-800"
+                >
+                  Terms &amp; Conditions
+                </Link>{" "}
+                and{" "}
                 <Link
                   href="/privacy-policy"
                   target="_blank"
                   className="font-semibold text-emerald-700 hover:text-emerald-800"
                 >
                   Privacy Policy
-                </Link>{" "}
-                before uploading this property.
+                </Link>
+                .
               </span>
             </label>
 
             <button
               type="submit"
-              disabled={submitting || !acceptedPrivacy}
+              disabled={submitting || !acceptedPolicies}
               className="mt-6 w-full rounded-lg bg-emerald-600 py-3 font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {submitting ? "Submitting..." : "Submit Property"}
+              {submitting ? "Submitting..." : "+ List Property Free"}
             </button>
           </form>
         </>

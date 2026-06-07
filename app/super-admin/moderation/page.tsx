@@ -14,6 +14,12 @@ import { FiAlertTriangle, FiCheckCircle, FiClock, FiFilter } from "react-icons/f
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
 
+function mediaUrl(path?: string) {
+  if (!path) return "";
+  if (path.startsWith("http") || path.startsWith("data:")) return path;
+  return `${API_BASE_URL}${path}`;
+}
+
 type ModerationFilter = "all" | "flagged" | "clean";
 
 export default function SuperAdminModerationPage() {
@@ -21,6 +27,7 @@ export default function SuperAdminModerationPage() {
   const [items, setItems] = useState<PropertyRecord[]>([]);
   const [filter, setFilter] = useState<ModerationFilter>("flagged");
   const [deletingId, setDeletingId] = useState("");
+  const [verifyingId, setVerifyingId] = useState("");
 
   useEffect(() => {
     async function loadItems() {
@@ -56,6 +63,35 @@ export default function SuperAdminModerationPage() {
       }
     } finally {
       setDeletingId("");
+    }
+  }
+
+  async function verifyPayment(propertyId: string) {
+    const confirmed = window.confirm("Verify this payment and promote listing?");
+    if (!confirmed) return;
+
+    setVerifyingId(propertyId);
+    try {
+      const formData = new FormData();
+      formData.append("paymentStatus", "verified");
+      formData.append("isPaidListing", "true");
+      const response = await fetch(`${API_BASE_URL}/api/properties/${propertyId}`, {
+        method: "PUT",
+        credentials: "include",
+        body: formData,
+      });
+
+      if (response.ok) {
+        setItems((prev) =>
+          prev.map((item) =>
+            item.id === propertyId
+              ? { ...item, paymentStatus: "verified", isPaidListing: true }
+              : item
+          )
+        );
+      }
+    } finally {
+      setVerifyingId("");
     }
   }
 
@@ -221,12 +257,50 @@ export default function SuperAdminModerationPage() {
                   </div>
                 </div>
 
+                <div className="mt-4 grid gap-3 md:grid-cols-3">
+                  <div className="rounded-2xl bg-slate-900 px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                      Payment
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-white">
+                      {item.isPaidListing ? "Verified paid listing" : item.paymentStatus}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl bg-slate-900 px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                      Reference
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-white">
+                      {item.paymentReference || "N/A"}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl bg-slate-900 px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                      Proof
+                    </p>
+                    {item.paymentProof ? (
+                      <a
+                        href={mediaUrl(item.paymentProof)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1 inline-flex text-sm font-semibold text-emerald-300 underline"
+                      >
+                        View proof
+                      </a>
+                    ) : (
+                      <p className="mt-1 text-sm font-semibold text-white">N/A</p>
+                    )}
+                  </div>
+                </div>
+
                 <div className="mt-5 flex flex-wrap gap-3">
                   <button
                     type="button"
+                    onClick={() => verifyPayment(item.id)}
+                    disabled={verifyingId === item.id}
                     className="rounded-xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
                   >
-                    Approve Listing
+                    {verifyingId === item.id ? "Verifying..." : "Verify Paid Listing"}
                   </button>
                   <button
                     type="button"

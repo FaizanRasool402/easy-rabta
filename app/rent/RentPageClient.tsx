@@ -16,8 +16,8 @@ import {
   toggleSavedProperty,
   type SavedProperty,
 } from "@/components/savedProperties";
-import ListingImage from "@/components/ListingImage";
-import { propertyCardImage } from "@/lib/propertyImage";
+import PropertyImageGallery from "@/components/PropertyImageGallery";
+import { propertyGalleryImages } from "@/lib/propertyImage";
 
 type RentProperty = {
   id: string;
@@ -30,6 +30,7 @@ type RentProperty = {
   monthlyRent: number;
   size: string;
   image: string;
+  images: string[];
   contactPhone?: string;
   isPaidListing?: boolean;
 };
@@ -73,6 +74,7 @@ const properties: RentProperty[] = [
     monthlyRent: 95000,
     size: "10 Marla",
     image: "/images/one.jpg",
+    images: ["/images/one.jpg"],
     contactPhone: contactPhoneDisplay,
   },
   {
@@ -85,6 +87,7 @@ const properties: RentProperty[] = [
     monthlyRent: 60000,
     size: "1200 sqft",
     image: "/images/two.jpg",
+    images: ["/images/two.jpg"],
     contactPhone: contactPhoneDisplay,
   },
   {
@@ -97,6 +100,7 @@ const properties: RentProperty[] = [
     monthlyRent: 180000,
     size: "2300 sqft",
     image: "/images/three.jpg",
+    images: ["/images/three.jpg"],
     contactPhone: contactPhoneDisplay,
   },
   {
@@ -109,6 +113,7 @@ const properties: RentProperty[] = [
     monthlyRent: 50000,
     size: "650 sqft",
     image: "/images/Islamabadd.jpg",
+    images: ["/images/Islamabadd.jpg"],
     contactPhone: contactPhoneDisplay,
   },
 ];
@@ -161,7 +166,8 @@ export default function RentPage({
           bedrooms: Number(property.bedrooms ?? 0),
           monthlyRent: Number(property.price ?? 0),
           size: property.areaSize || property.plotSize || "Size not specified",
-          image: propertyCardImage(property.images),
+          image: propertyGalleryImages(property.images)[0],
+          images: propertyGalleryImages(property.images),
           contactPhone: property.contactPhone,
           isPaidListing: Boolean(property.isPaidListing),
         }));
@@ -412,10 +418,9 @@ export default function RentPage({
                       className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900"
                     >
                       <div className="relative">
-                        <ListingImage
-                          src={property.image}
-                          alt={property.title}
-                          className="h-52 w-full object-cover"
+                        <PropertyImageGallery
+                          images={property.images}
+                          title={property.title}
                         />
                         <button
                           type="button"

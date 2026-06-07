@@ -210,7 +210,7 @@ export default async function BlogDetailPage({ params }: BlogDetailPageProps) {
                       href="/post-property"
                       className="inline-flex justify-center rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
                     >
-                      Post Property
+                      + Post Free Property
                     </Link>
                   </div>
                 </div>

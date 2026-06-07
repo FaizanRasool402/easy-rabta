@@ -40,6 +40,10 @@ type PropertyDetail = {
   expiresAt?: string;
   totalViews?: number;
   dailyViews?: Array<{ date?: string; count?: number }>;
+  isPaidListing?: boolean;
+  paymentStatus?: string;
+  paymentReference?: string;
+  paymentProof?: string;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -61,7 +65,10 @@ type FormState = {
   description: string;
   contactName: string;
   contactPhone: string;
+  paymentReference: string;
 };
+
+const PAID_TAGS = ["premium", "hot-deal", "investor-pick"];
 
 function mediaUrl(path?: string) {
   if (!path) return "";
@@ -91,6 +98,7 @@ function toFormState(property: PropertyDetail): FormState {
     description: property.description ?? "",
     contactName: property.contactName ?? "",
     contactPhone: property.contactPhone ?? "",
+    paymentReference: property.paymentReference ?? "",
   };
 }
 
@@ -106,6 +114,7 @@ export default function PropertyDetailPage() {
   const [form, setForm] = useState<FormState | null>(null);
   const [activeImage, setActiveImage] = useState(0);
   const [newImages, setNewImages] = useState<File[]>([]);
+  const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -150,6 +159,7 @@ export default function PropertyDetailPage() {
   }, [form?.propertyType]);
   const isCommercial = isCoveredAreaPropertyType(form?.propertyType ?? "");
   const isPlot = isPlotPropertyType(form?.propertyType ?? "");
+  const isPaidTag = form ? PAID_TAGS.includes(form.tag) : false;
   const galleryImages = property?.images ?? [];
   const heroImage = galleryImages[activeImage] ?? galleryImages[0] ?? "";
   const today = new Date().toISOString().slice(0, 10);
@@ -199,6 +209,9 @@ export default function PropertyDetailPage() {
       formData.append("existingImages", JSON.stringify(property?.images ?? []));
       formData.append("existingVideos", JSON.stringify(property?.videos ?? []));
       newImages.forEach((file) => formData.append("images", file));
+      if (paymentProof) {
+        formData.append("paymentProof", paymentProof);
+      }
 
       const response = await fetch(`${API_BASE_URL}/api/properties/${propertyId}`, {
         method: "PUT",
@@ -220,6 +233,7 @@ export default function PropertyDetailPage() {
         setProperty(data.property);
         setForm(toFormState(data.property));
         setNewImages([]);
+        setPaymentProof(null);
       }
 
       setMessage(data.message ?? "Property updated successfully.");
@@ -251,6 +265,40 @@ export default function PropertyDetailPage() {
       setError("Property delete failed.");
     } finally {
       setDeleting(false);
+    }
+  }
+
+  async function handleMarkSold() {
+    const confirmed = window.confirm("Mark this listing as sold?");
+    if (!confirmed || !form) return;
+
+    setSaving(true);
+    setError("");
+    try {
+      const formData = new FormData();
+      formData.append("status", "sold");
+      const response = await fetch(`${API_BASE_URL}/api/properties/${propertyId}`, {
+        method: "PUT",
+        credentials: "include",
+        body: formData,
+      });
+      const data = (await response.json()) as {
+        message?: string;
+        property?: PropertyDetail;
+      };
+      if (!response.ok) {
+        setError(data.message ?? "Failed to mark listing sold.");
+        return;
+      }
+      if (data.property) {
+        setProperty(data.property);
+        setForm(toFormState(data.property));
+      }
+      setMessage("Listing marked as sold.");
+    } catch {
+      setError("Failed to mark listing sold.");
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -406,6 +454,14 @@ export default function PropertyDetailPage() {
                     <MetaRow label="Total Views" value={String(property.totalViews ?? 0)} />
                     <MetaRow label="Today Views" value={String(todayViews)} />
                     <MetaRow
+                      label="Paid Listing"
+                      value={
+                        property.isPaidListing
+                          ? "Verified"
+                          : property.paymentStatus ?? "unpaid"
+                      }
+                    />
+                    <MetaRow
                       label="Expires"
                       value={
                         property.expiresAt
@@ -469,6 +525,16 @@ export default function PropertyDetailPage() {
               >
                 {deleting ? "Deleting..." : "Delete Property"}
               </button>
+              {property.status !== "sold" ? (
+                <button
+                  type="button"
+                  onClick={handleMarkSold}
+                  disabled={saving}
+                  className="rounded-lg border border-amber-200 px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-50 disabled:opacity-60"
+                >
+                  Mark as Sold
+                </button>
+              ) : null}
             </div>
 
             <div className="mt-6 grid gap-6">
@@ -572,6 +638,53 @@ export default function PropertyDetailPage() {
                   />
                 </Field>
               </section>
+
+              {isPaidTag ? (
+                <section className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+                  <p className="text-sm font-semibold text-amber-900">
+                    Paid Listing Payment
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-amber-800">
+                    Add your bank transfer reference and proof. Admin will verify
+                    payment before this listing appears as paid on top.
+                  </p>
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    <Field label="Payment Reference / Transaction ID">
+                      <input
+                        value={form.paymentReference}
+                        onChange={(event) =>
+                          setForm((prev) =>
+                            prev
+                              ? { ...prev, paymentReference: event.target.value }
+                              : prev
+                          )
+                        }
+                        className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-500"
+                      />
+                    </Field>
+                    <Field label="Payment Proof Screenshot">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) =>
+                          setPaymentProof(event.target.files?.[0] ?? null)
+                        }
+                        className="w-full rounded-2xl border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 file:mr-3 file:rounded-xl file:border-0 file:bg-emerald-50 file:px-4 file:py-2 file:font-medium file:text-emerald-700"
+                      />
+                      {property.paymentProof ? (
+                        <a
+                          href={mediaUrl(property.paymentProof)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 inline-flex text-sm font-semibold text-emerald-700 underline"
+                        >
+                          View current proof
+                        </a>
+                      ) : null}
+                    </Field>
+                  </div>
+                </section>
+              ) : null}
 
               <section className="grid gap-4 md:grid-cols-2">
                 <Field label="Area Size">

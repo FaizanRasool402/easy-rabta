@@ -11,6 +11,10 @@ export type RawProperty = {
   totalViews?: number;
   dailyViews?: Array<{ date?: string; count?: number }>;
   images?: string[];
+  isPaidListing?: boolean;
+  paymentStatus?: string;
+  paymentReference?: string;
+  paymentProof?: string;
 };
 
 export type PropertyRecord = {
@@ -26,6 +30,10 @@ export type PropertyRecord = {
   totalViews: number;
   todayViews: number;
   images: string[];
+  isPaidListing: boolean;
+  paymentStatus: string;
+  paymentReference?: string;
+  paymentProof?: string;
 };
 
 export function normalizeProperty(property: RawProperty, index: number): PropertyRecord {
@@ -44,6 +52,10 @@ export function normalizeProperty(property: RawProperty, index: number): Propert
     totalViews: Number(property.totalViews ?? 0),
     todayViews: property.dailyViews?.find((item) => item.date === today)?.count ?? 0,
     images: property.images ?? [],
+    isPaidListing: Boolean(property.isPaidListing),
+    paymentStatus: property.paymentStatus ?? "unpaid",
+    paymentReference: property.paymentReference,
+    paymentProof: property.paymentProof,
   };
 }
 
@@ -59,6 +71,7 @@ export function buildPropertyFlags(property: PropertyRecord) {
   if (property.title === "Untitled property") flags.push("Weak title");
   if (!property.city || property.city === "Unknown city") flags.push("Missing city");
   if (!property.area || property.area === "Area not provided") flags.push("Missing area");
+  if (property.paymentStatus === "pending") flags.push("Payment pending");
   if (flags.length === 0) flags.push("Manual review");
 
   return flags;

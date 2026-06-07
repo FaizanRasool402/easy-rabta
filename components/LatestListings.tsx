@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import ListingImage from "@/components/ListingImage";
+import PropertyImageGallery from "@/components/PropertyImageGallery";
 import PropertyInquiryButton from "@/components/PropertyInquiryButton";
-import { propertyCardImage } from "@/lib/propertyImage";
+import { propertyGalleryImages } from "@/lib/propertyImage";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
@@ -22,6 +22,7 @@ type PublicProperty = {
   plotSize?: string;
   images?: string[];
   contactPhone?: string;
+  isPaidListing?: boolean;
 };
 
 type ListingCard = {
@@ -35,7 +36,9 @@ type ListingCard = {
   bedrooms: number;
   size: string;
   image: string;
+  images: string[];
   contactPhone?: string;
+  isPaidListing?: boolean;
 };
 
 function formatPrice(value: number, purpose: "sell" | "rent") {
@@ -66,8 +69,10 @@ export default function LatestListings() {
           propertyType: property.propertyType ?? "Property",
           bedrooms: Number(property.bedrooms ?? 0),
           size: property.areaSize || property.plotSize || "Size not specified",
-          image: propertyCardImage(property.images),
+          image: propertyGalleryImages(property.images)[0],
+          images: propertyGalleryImages(property.images),
           contactPhone: property.contactPhone,
+          isPaidListing: Boolean(property.isPaidListing),
         }));
 
         setListings(normalized);
@@ -124,14 +129,19 @@ export default function LatestListings() {
               className="overflow-hidden rounded-3xl border border-gray-200 bg-gray-50 transition hover:-translate-y-0.5 hover:shadow-md"
             >
               <div className="relative">
-                <ListingImage
-                  src={listing.image}
-                  alt={listing.title}
+                <PropertyImageGallery
+                  images={listing.images}
+                  title={listing.title}
                   className="h-56 w-full object-cover"
                 />
                 <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
                   {listing.purpose === "rent" ? "For Rent" : "For Sale"}
                 </span>
+                {listing.isPaidListing ? (
+                  <span className="absolute right-4 top-4 rounded-full bg-amber-400 px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-amber-950">
+                    Paid
+                  </span>
+                ) : null}
               </div>
 
               <div className="p-5">

@@ -11,8 +11,8 @@ import {
   propertyTypes,
   type PropertyType,
 } from "@/lib/propertyTypes";
-import ListingImage from "@/components/ListingImage";
-import { propertyCardImage } from "@/lib/propertyImage";
+import PropertyImageGallery from "@/components/PropertyImageGallery";
+import { propertyGalleryImages } from "@/lib/propertyImage";
 
 type FeaturedProperty = {
   id: string;
@@ -27,8 +27,10 @@ type FeaturedProperty = {
   bathrooms: number;
   size: string;
   image: string;
+  images: string[];
   tags: string[];
   contactPhone?: string;
+  isPaidListing?: boolean;
 };
 
 type ApiProperty = {
@@ -46,6 +48,7 @@ type ApiProperty = {
   images?: string[];
   tag?: string;
   contactPhone?: string;
+  isPaidListing?: boolean;
 };
 
 const API_BASE_URL =
@@ -64,6 +67,7 @@ const featuredProperties: FeaturedProperty[] = [
     bathrooms: 6,
     size: "1 Kanal",
     image: "/images/one.jpg",
+    images: ["/images/one.jpg"],
     tags: ["Hot Deal", "Verified"],
   },
   {
@@ -78,6 +82,7 @@ const featuredProperties: FeaturedProperty[] = [
     bathrooms: 3,
     size: "1600 sqft",
     image: "/images/two.jpg",
+    images: ["/images/two.jpg"],
     tags: ["Premium"],
   },
   {
@@ -92,6 +97,7 @@ const featuredProperties: FeaturedProperty[] = [
     bathrooms: 2,
     size: "2800 sqft",
     image: "/images/three.jpg",
+    images: ["/images/three.jpg"],
     tags: ["Verified", "New"],
   },
   {
@@ -106,6 +112,7 @@ const featuredProperties: FeaturedProperty[] = [
     bathrooms: 0,
     size: "10 Marla",
     image: "/images/rwalpindi.jpg",
+    images: ["/images/rwalpindi.jpg"],
     tags: ["Investor Pick"],
   },
   {
@@ -120,6 +127,7 @@ const featuredProperties: FeaturedProperty[] = [
     bathrooms: 2,
     size: "5 Marla",
     image: "/images/Islamabadd.jpg",
+    images: ["/images/Islamabadd.jpg"],
     tags: ["Budget"],
   },
   {
@@ -134,6 +142,7 @@ const featuredProperties: FeaturedProperty[] = [
     bathrooms: 2,
     size: "2400 sqft",
     image: "/images/one.jpg",
+    images: ["/images/one.jpg"],
     tags: ["High Demand"],
   },
 ];
@@ -177,9 +186,11 @@ export default function FeaturedPage() {
           bedrooms: Number(property.bedrooms ?? 0),
           bathrooms: Number(property.bathrooms ?? 0),
           size: property.areaSize || property.plotSize || "Size not specified",
-          image: propertyCardImage(property.images),
+          image: propertyGalleryImages(property.images)[0],
+          images: propertyGalleryImages(property.images),
           tags: property.tag ? [property.tag] : ["New"],
           contactPhone: property.contactPhone,
+          isPaidListing: Boolean(property.isPaidListing),
         }));
 
         setApiFeaturedProperties(normalized);
@@ -230,15 +241,25 @@ export default function FeaturedPage() {
     });
 
     if (sortBy === "price_low") {
-      return [...results].sort((a, b) => a.price - b.price);
+      return [...results].sort(
+        (a, b) => Number(b.isPaidListing) - Number(a.isPaidListing) || a.price - b.price
+      );
     }
     if (sortBy === "price_high") {
-      return [...results].sort((a, b) => b.price - a.price);
+      return [...results].sort(
+        (a, b) => Number(b.isPaidListing) - Number(a.isPaidListing) || b.price - a.price
+      );
     }
     if (sortBy === "beds_high") {
-      return [...results].sort((a, b) => b.bedrooms - a.bedrooms);
+      return [...results].sort(
+        (a, b) =>
+          Number(b.isPaidListing) - Number(a.isPaidListing) ||
+          b.bedrooms - a.bedrooms
+      );
     }
-    return results;
+    return [...results].sort(
+      (a, b) => Number(b.isPaidListing) - Number(a.isPaidListing)
+    );
   }, [allFeaturedProperties, bedrooms, city, maxPrice, minPrice, purpose, sortBy, tag, type]);
 
   function resetFilters() {
@@ -274,7 +295,7 @@ export default function FeaturedPage() {
                 href="/post-property"
                 className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
               >
-                Feature Your Property
+                + List Property Free
               </Link>
             </div>
 
@@ -394,14 +415,18 @@ export default function FeaturedPage() {
                         className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
                       >
                         <div className="relative">
-                          <ListingImage
-                            src={propertyItem.image}
-                            alt={propertyItem.title}
-                            className="h-52 w-full object-cover"
+                          <PropertyImageGallery
+                            images={propertyItem.images}
+                            title={propertyItem.title}
                           />
                           <span className="absolute right-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-white">
                             {propertyItem.purpose === "rent" ? "For Rent" : "For Sale"}
                           </span>
+                          {propertyItem.isPaidListing ? (
+                            <span className="absolute left-3 top-3 rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-amber-950">
+                              Paid
+                            </span>
+                          ) : null}
                         </div>
                         <div className="p-4">
                           <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100">

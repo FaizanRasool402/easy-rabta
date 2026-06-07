@@ -51,4 +51,17 @@ export function propertyCardImage(
   return resolvePropertyImageUrl(images, apiBase) ?? FALLBACK_IMAGE;
 }
 
+/** All uploaded image URLs for galleries, with a placeholder when none exist. */
+export function propertyGalleryImages(
+  images?: string[] | null,
+  apiBase: string = API_BASE_URL
+): string[] {
+  const resolved =
+    images
+      ?.map((image) => resolvePropertyImageUrl([image], apiBase))
+      .filter((image): image is string => Boolean(image)) ?? [];
+
+  return resolved.length > 0 ? resolved : [FALLBACK_IMAGE];
+}
+
 export { FALLBACK_IMAGE };

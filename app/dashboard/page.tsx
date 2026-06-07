@@ -29,6 +29,8 @@ type PropertyRecord = {
   expiresAt?: string;
   totalViews: number;
   todayViews: number;
+  isPaidListing?: boolean;
+  paymentStatus?: string;
 };
 
 type RawProperty = {
@@ -45,6 +47,8 @@ type RawProperty = {
   images?: string[];
   totalViews?: number;
   dailyViews?: Array<{ date?: string; count?: number }>;
+  isPaidListing?: boolean;
+  paymentStatus?: string;
 };
 
 function extractId(id: RawProperty["_id"]) {
@@ -77,12 +81,14 @@ function normalizeProperty(property: RawProperty): PropertyRecord {
     city: property.city ?? "Unknown city",
     area: property.area ?? "Area not provided",
     price: Number(property.price ?? 0),
-    status: property.status ?? "Active",
+    status: property.status ?? "active",
     createdAt: property.createdAt ?? "",
     image: propertyCardImage(property.images),
     expiresAt: property.expiresAt ?? "",
     totalViews: Number(property.totalViews ?? 0),
     todayViews,
+    isPaidListing: Boolean(property.isPaidListing),
+    paymentStatus: property.paymentStatus ?? "unpaid",
   };
 }
 
@@ -92,6 +98,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [properties, setProperties] = useState<PropertyRecord[]>([]);
   const [deletingId, setDeletingId] = useState("");
+  const [updatingId, setUpdatingId] = useState("");
 
   useEffect(() => {
     async function loadDashboard() {
@@ -145,6 +152,32 @@ export default function DashboardPage() {
     }
   }
 
+  async function markAsSold(propertyId: string) {
+    const confirmed = window.confirm("Mark this listing as sold?");
+    if (!confirmed) return;
+
+    setUpdatingId(propertyId);
+    try {
+      const formData = new FormData();
+      formData.append("status", "sold");
+      const response = await fetch(`${API_BASE_URL}/api/properties/${propertyId}`, {
+        method: "PUT",
+        credentials: "include",
+        body: formData,
+      });
+
+      if (response.ok) {
+        setProperties((prev) =>
+          prev.map((item) =>
+            item.id === propertyId ? { ...item, status: "sold" } : item
+          )
+        );
+      }
+    } finally {
+      setUpdatingId("");
+    }
+  }
+
   const greetingName = useMemo(() => {
     if (!user?.name) return "User";
     return user.name.split(" ")[0];
@@ -190,7 +223,7 @@ export default function DashboardPage() {
           href="/dashboard/add-property"
           className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700"
         >
-          Add New Property
+          + Post Free Property
         </Link>
       }
     >
@@ -225,7 +258,7 @@ export default function DashboardPage() {
             href="/dashboard/add-property"
             className="hidden rounded-lg border border-emerald-200 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 sm:inline-flex"
           >
-            Post Another
+            + List Property Free
           </Link>
         </div>
 
@@ -271,7 +304,7 @@ export default function DashboardPage() {
                           {property.purpose} • {property.propertyType}
                         </p>
                         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                          property.status === "expired"
+                          property.status === "expired" || property.status === "sold"
                             ? "bg-rose-100 text-rose-700"
                             : "bg-emerald-100 text-emerald-700"
                         }`}>
@@ -296,6 +329,15 @@ export default function DashboardPage() {
                     <p className="mt-2 text-sm text-gray-500">
                       Views: {property.totalViews} total, {property.todayViews} today
                     </p>
+                    <p className="mt-2 text-sm text-gray-500">
+                      Paid: {property.isPaidListing ? "Verified" : property.paymentStatus}
+                    </p>
+                    <p className="mt-2 text-sm text-gray-500">
+                      Expires:{" "}
+                      {property.expiresAt
+                        ? new Date(property.expiresAt).toLocaleDateString()
+                        : "30 days after posting"}
+                    </p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       <Link
                         href={`/dashboard/properties/${encodeURIComponent(property.id)}`}
@@ -311,6 +353,16 @@ export default function DashboardPage() {
                       >
                         {deletingId === property.id ? "Deleting..." : "Delete"}
                       </button>
+                      {property.status !== "sold" ? (
+                        <button
+                          type="button"
+                          onClick={() => markAsSold(property.id)}
+                          disabled={updatingId === property.id}
+                          className="rounded-lg border border-amber-200 px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-50 disabled:opacity-60"
+                        >
+                          {updatingId === property.id ? "Updating..." : "Mark Sold"}
+                        </button>
+                      ) : null}
                     </div>
                   </div>
                 </div>

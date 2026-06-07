@@ -191,7 +191,7 @@ export default function Navbar() {
                 href={authUser ? "/post-property" : "/login?redirect=/post-property"}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg transition text-sm whitespace-nowrap"
               >
-                Post Property
+                + Post Free Property
               </Link>
             ) : null}
           </div>
@@ -271,7 +271,7 @@ export default function Navbar() {
                     onClick={() => setMobileMenuOpen(false)}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-4 rounded-lg text-center"
                   >
-                    Post Property
+                    + Post Free Property
                   </Link>
                 ) : null}
               </div>

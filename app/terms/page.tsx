@@ -1,43 +1,39 @@
 import LegalPage from "@/components/LegalPage";
-import { contactPhoneDisplay } from "@/lib/contact";
 
 export default function TermsPage() {
   return (
     <LegalPage
       title="Terms & Conditions"
-      description="These Terms & Conditions explain the rules for using Easy Raabta to browse, post, manage, and inquire about property listings."
+      description="These Terms of Use explain the rules for using EasyRaabta.com."
       sections={[
         {
-          title: "Use of the Platform",
+          title: "Acceptance",
           body: [
-            "By using Easy Raabta, you agree to use the platform for lawful property-related activity only. You must not submit false, misleading, abusive, illegal, or unauthorized content.",
-            "You are responsible for keeping your account details secure and for all activity performed through your account.",
+            "By using this platform, you agree to all terms and policies.",
           ],
         },
         {
-          title: "Property Listings",
+          title: "User Content",
           body: [
-            "Users who post listings are responsible for the accuracy of property details, images, price, location, ownership claims, contact information, and availability.",
-            "Easy Raabta may edit, reject, hide, or remove listings that appear incomplete, misleading, duplicate, inappropriate, or against platform standards.",
+            "Users are fully responsible for the content they post.",
           ],
         },
         {
-          title: "Inquiries and Communication",
+          title: "Content Removal Rights",
           body: [
-            "Easy Raabta helps users connect through property inquiries, phone, WhatsApp, and contact forms. Any agreement, visit, token payment, rent, sale, commission, or transaction is handled directly between the relevant parties.",
-            "Users should verify all parties and property documents before making payments or signing agreements.",
+            "We reserve the right to remove fake listings, fraudulent or misleading content, and any misuse of the platform.",
           ],
         },
         {
-          title: "Availability and Changes",
+          title: "No Guarantee",
           body: [
-            "We may update, pause, or remove features at any time. We may also update these terms when needed. Continued use of the website means you accept the latest version.",
+            "We do not guarantee the accuracy of listings or successful transactions.",
           ],
         },
         {
-          title: "Contact",
+          title: "All Rights Reserved",
           body: [
-            `For questions about these terms, contact Easy Raabta at EasyRaabta@gmail.com or ${contactPhoneDisplay}.`,
+            "All rights are reserved by EasyRaabta.com. We may update or change these policies at any time without prior notice.",
           ],
         },
       ]}

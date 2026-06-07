@@ -72,6 +72,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/safety-guidelines" className="hover:text-emerald-500 transition">
+                  Safety Guidelines
+                </Link>
+              </li>
+              <li>
                 <Link href="/disclaimer" className="hover:text-emerald-500 transition">
                   Disclaimer
                 </Link>

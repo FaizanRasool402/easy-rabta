@@ -20,6 +20,7 @@ const routes = [
   "/terms",
   "/privacy-policy",
   "/refund-policy",
+  "/safety-guidelines",
   "/disclaimer",
 ];
 
