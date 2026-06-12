@@ -425,7 +425,8 @@ export default function Hero() {
 
             {/* Search Filters */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-              <select
+              <input
+                type="search"
                 value={searchData.city}
                 onChange={(e) =>
                   setSearchData({
@@ -434,31 +435,37 @@ export default function Hero() {
                     area: "",
                   })
                 }
+                list="hero-city-options"
+                placeholder="Any city"
                 className="px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm sm:text-base"
-              >
-                <option value="">Select City</option>
+              />
+              <datalist id="hero-city-options">
                 {cities.map((city) => (
                   <option key={city} value={city}>
                     {city}
                   </option>
                 ))}
-              </select>
+                <option value="Other" />
+              </datalist>
 
-              <select
+              <input
+                type="search"
                 value={searchData.area}
                 onChange={(e) =>
                   setSearchData({ ...searchData, area: e.target.value })
                 }
-                disabled={!searchData.city}
-                className="px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm sm:text-base disabled:bg-gray-100 disabled:text-gray-400"
-              >
-                <option value="">Select Area</option>
+                list="hero-area-options"
+                placeholder="Any neighborhood / area"
+                className="px-4 py-2.5 sm:py-3 rounded-lg border border-gray-300 text-gray-700 focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm sm:text-base"
+              />
+              <datalist id="hero-area-options">
                 {(areasByCity[searchData.city] ?? []).map((area) => (
                   <option key={area} value={area}>
                     {area}
                   </option>
                 ))}
-              </select>
+                <option value="Other" />
+              </datalist>
 
               <select
                 value={searchData.propertyType}

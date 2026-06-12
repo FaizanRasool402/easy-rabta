@@ -93,15 +93,15 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 sm:h-20">
+        <div className="flex justify-between items-center gap-2 h-16 sm:h-20">
           <Link href="/" className="flex items-center flex-shrink-0">
-            <div className="relative h-20 w-[270px] overflow-hidden sm:h-20 sm:w-[300px]">
+            <div className="relative h-16 w-[150px] overflow-hidden min-[380px]:w-[172px] sm:h-20 sm:w-[260px] md:w-[300px]">
               <Image
                 src="/images/logo.png"
                 alt="Easy Raabta Logo"
                 fill
                 priority
-                sizes="(min-width: 640px) 300px, 270px"
+                sizes="(min-width: 768px) 300px, (min-width: 640px) 260px, 172px"
                 className="object-contain"
                 style={{ objectPosition: "center center" }}
               />
@@ -191,19 +191,28 @@ export default function Navbar() {
                 href={authUser ? "/post-property" : "/login?redirect=/post-property"}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2 rounded-lg transition text-sm whitespace-nowrap"
               >
-                + Post Free Property
+                + Post Free Ad
               </Link>
             ) : null}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="rounded-lg p-2 text-gray-700 hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-800 md:hidden"
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-          </button>
+          <div className="flex items-center gap-2 md:hidden">
+            {!isSuperAdmin ? (
+              <Link
+                href={authUser ? "/post-property" : "/login?redirect=/post-property"}
+                className="rounded-lg bg-emerald-600 px-2.5 py-2 text-[11px] font-bold leading-none text-white shadow-sm transition hover:bg-emerald-700 min-[380px]:px-3 min-[380px]:text-xs"
+              >
+                + Post Free Ad
+              </Link>
+            ) : null}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="rounded-lg p-2 text-gray-700 hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-800"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -271,7 +280,7 @@ export default function Navbar() {
                     onClick={() => setMobileMenuOpen(false)}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-4 rounded-lg text-center"
                   >
-                    + Post Free Property
+                    + Post Free Ad
                   </Link>
                 ) : null}
               </div>

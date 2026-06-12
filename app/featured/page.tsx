@@ -31,6 +31,7 @@ type FeaturedProperty = {
   tags: string[];
   contactPhone?: string;
   isPaidListing?: boolean;
+  paymentStatus?: string;
 };
 
 type ApiProperty = {
@@ -49,6 +50,7 @@ type ApiProperty = {
   tag?: string;
   contactPhone?: string;
   isPaidListing?: boolean;
+  paymentStatus?: string;
 };
 
 const API_BASE_URL =
@@ -190,7 +192,8 @@ export default function FeaturedPage() {
           images: propertyGalleryImages(property.images),
           tags: property.tag ? [property.tag] : ["New"],
           contactPhone: property.contactPhone,
-          isPaidListing: Boolean(property.isPaidListing),
+          isPaidListing:
+            Boolean(property.isPaidListing) || property.paymentStatus === "verified",
         }));
 
         setApiFeaturedProperties(normalized);
@@ -295,7 +298,7 @@ export default function FeaturedPage() {
                 href="/post-property"
                 className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
               >
-                + List Property Free
+                + Post Free Ad
               </Link>
             </div>
 
@@ -424,7 +427,7 @@ export default function FeaturedPage() {
                           </span>
                           {propertyItem.isPaidListing ? (
                             <span className="absolute left-3 top-3 rounded-full bg-amber-400 px-3 py-1 text-xs font-bold text-amber-950">
-                              Paid
+                              Premium
                             </span>
                           ) : null}
                         </div>

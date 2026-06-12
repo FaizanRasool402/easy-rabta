@@ -4,6 +4,7 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import DashboardShell from "@/components/DashboardShell";
+import { areasByCity, cities } from "@/components/Hero";
 import {
   isBedroomPropertyType,
   isCoveredAreaPropertyType,
@@ -44,6 +45,9 @@ type PropertyDetail = {
   paymentStatus?: string;
   paymentReference?: string;
   paymentProof?: string;
+  monthlyEditCount?: number;
+  monthlyEditLimit?: number;
+  remainingMonthlyEdits?: number;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -69,6 +73,14 @@ type FormState = {
 };
 
 const PAID_TAGS = ["premium", "hot-deal", "investor-pick"];
+const TAG_OPTIONS = [
+  "featured",
+  "premium",
+  "hot-deal",
+  "investor-pick",
+  "new",
+  "budget",
+];
 
 function mediaUrl(path?: string) {
   if (!path) return "";
@@ -89,7 +101,7 @@ function toFormState(property: PropertyDetail): FormState {
     area: property.area ?? "",
     address: property.address ?? "",
     price: String(property.price ?? ""),
-    tag: property.tag ?? "featured",
+    tag: TAG_OPTIONS.includes(property.tag) ? property.tag : "featured",
     bedrooms: property.bedrooms ? String(property.bedrooms) : "",
     bathrooms: property.bathrooms ? String(property.bathrooms) : "",
     areaSize: property.areaSize ?? "",
@@ -162,6 +174,8 @@ export default function PropertyDetailPage() {
   const isPaidTag = form ? PAID_TAGS.includes(form.tag) : false;
   const galleryImages = property?.images ?? [];
   const heroImage = galleryImages[activeImage] ?? galleryImages[0] ?? "";
+  const monthlyEditLimit = property?.monthlyEditLimit ?? 3;
+  const remainingMonthlyEdits = property?.remainingMonthlyEdits ?? monthlyEditLimit;
   const today = new Date().toISOString().slice(0, 10);
   const todayViews =
     property?.dailyViews?.find((item) => item.date === today)?.count ?? 0;
@@ -334,12 +348,19 @@ export default function PropertyDetailPage() {
               <div className="border-b border-gray-200 xl:border-b-0 xl:border-r">
                 <div className="relative bg-gray-100">
                   {heroImage ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={mediaUrl(heroImage)}
-                      alt={property.title}
-                      className="h-[260px] w-full object-cover sm:h-[380px] xl:h-[460px]"
-                    />
+                    <a
+                      href={mediaUrl(heroImage)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block cursor-zoom-in"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={mediaUrl(heroImage)}
+                        alt={property.title}
+                        className="h-[260px] w-full object-cover sm:h-[380px] xl:h-[460px]"
+                      />
+                    </a>
                   ) : (
                     <div className="flex h-[260px] items-center justify-center text-sm font-medium text-gray-400 sm:h-[380px] xl:h-[460px]">
                       No image available
@@ -462,6 +483,10 @@ export default function PropertyDetailPage() {
                       }
                     />
                     <MetaRow
+                      label="Monthly Edits Left"
+                      value={`${remainingMonthlyEdits}/${monthlyEditLimit}`}
+                    />
+                    <MetaRow
                       label="Expires"
                       value={
                         property.expiresAt
@@ -514,7 +539,7 @@ export default function PropertyDetailPage() {
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">Edit Property</h3>
                 <p className="mt-1 text-sm text-gray-600">
-                  Update the required details and save your changes.
+                  Update the required details and save your changes. You can edit this listing {remainingMonthlyEdits} more time(s) this month.
                 </p>
               </div>
               <button
@@ -606,18 +631,34 @@ export default function PropertyDetailPage() {
                     onChange={(event) =>
                       setForm((prev) => (prev ? { ...prev, city: event.target.value } : prev))
                     }
+                    list="edit-city-options"
+                    placeholder="Any city"
                     className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-500"
                     required
                   />
+                  <datalist id="edit-city-options">
+                    {cities.map((cityName) => (
+                      <option key={cityName} value={cityName} />
+                    ))}
+                    <option value="Other" />
+                  </datalist>
                 </Field>
-                <Field label="Area">
+                <Field label="Neighborhood / Area">
                   <input
                     value={form.area}
                     onChange={(event) =>
                       setForm((prev) => (prev ? { ...prev, area: event.target.value } : prev))
                     }
+                    list="edit-area-options"
+                    placeholder="Any neighborhood or area"
                     className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-500"
                   />
+                  <datalist id="edit-area-options">
+                    {(areasByCity[form.city] ?? []).map((areaName) => (
+                      <option key={areaName} value={areaName} />
+                    ))}
+                    <option value="Other" />
+                  </datalist>
                 </Field>
                 <Field label="Address">
                   <input
@@ -629,13 +670,19 @@ export default function PropertyDetailPage() {
                   />
                 </Field>
                 <Field label="Tag">
-                  <input
+                  <select
                     value={form.tag}
                     onChange={(event) =>
                       setForm((prev) => (prev ? { ...prev, tag: event.target.value } : prev))
                     }
-                    className="w-full rounded-2xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-500"
-                  />
+                    className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 outline-none transition focus:border-emerald-500"
+                  >
+                    {TAG_OPTIONS.map((tag) => (
+                      <option key={tag} value={tag}>
+                        {tag.replace("-", " ")}
+                      </option>
+                    ))}
+                  </select>
                 </Field>
               </section>
 

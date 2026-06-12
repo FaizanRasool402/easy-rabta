@@ -136,7 +136,7 @@ export default function BlogPage() {
                 href="/post-property"
                 className="inline-flex justify-center rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
               >
-                + Post Free Property
+                + Post Free Ad
               </Link>
             </div>
           </div>

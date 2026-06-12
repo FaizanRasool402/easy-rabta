@@ -40,7 +40,6 @@ const MAX_IMAGE_SIZE_MB = 3;
 const MAX_VIDEO_SIZE_MB = 50;
 const TAG_OPTIONS = [
   "featured",
-  "verified",
   "premium",
   "hot-deal",
   "investor-pick",
@@ -247,7 +246,7 @@ export default function PostPropertyForm({
     }
     if (!acceptedPolicies) {
       setError(
-        "Please agree to the Terms & Conditions and Privacy Policy before uploading your property."
+        "Please agree to the Terms & Conditions, Privacy Policy, and Disclaimer before uploading your property."
       );
       return;
     }
@@ -385,7 +384,7 @@ export default function PostPropertyForm({
         <>
           <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-5 sm:p-7">
             <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
-              + Post Free Property
+              + Post Free Ad
             </h1>
             <p className="mt-2 text-sm text-gray-600">
               Add your property details. You can upload up to 5 images and 2 videos.
@@ -494,30 +493,35 @@ export default function PostPropertyForm({
                   </div>
                 </div>
               ) : null}
-              <Select
+              <Input
                 label="City"
                 value={form.city}
                 onChange={(value) =>
                   setForm((prev) => ({ ...prev, city: value, area: "" }))
                 }
-                options={[
-                  { label: "Select City", value: "" },
-                  ...cities.map((cityName) => ({ label: cityName, value: cityName })),
-                ]}
+                placeholder="Any city"
+                list="post-city-options"
+                required
               />
-              <Select
-                label="Area"
+              <datalist id="post-city-options">
+                {cities.map((cityName) => (
+                  <option key={cityName} value={cityName} />
+                ))}
+                <option value="Other" />
+              </datalist>
+              <Input
+                label="Neighborhood / Area"
                 value={form.area}
                 onChange={(value) => updateField("area", value)}
-                disabled={!form.city}
-                options={[
-                  { label: "Select Area", value: "" },
-                  ...((areasByCity[form.city] ?? []).map((areaName) => ({
-                    label: areaName,
-                    value: areaName,
-                  })) as Array<{ label: string; value: string }>),
-                ]}
+                placeholder="Any neighborhood or area"
+                list="post-area-options"
               />
+              <datalist id="post-area-options">
+                {(areasByCity[form.city] ?? []).map((areaName) => (
+                  <option key={areaName} value={areaName} />
+                ))}
+                <option value="Other" />
+              </datalist>
               <Input
                 label="Address"
                 value={form.address}
@@ -607,6 +611,18 @@ export default function PostPropertyForm({
                 placeholder="03XX-XXXXXXX"
                 required
               />
+            </div>
+
+            <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+              Before uploading media, please read the{" "}
+              <Link
+                href="/disclaimer"
+                target="_blank"
+                className="font-semibold underline"
+              >
+                ad disclaimer
+              </Link>
+              .
             </div>
 
             <div className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -755,6 +771,14 @@ export default function PostPropertyForm({
                 >
                   Privacy Policy
                 </Link>
+                , and{" "}
+                <Link
+                  href="/disclaimer"
+                  target="_blank"
+                  className="font-semibold text-emerald-700 hover:text-emerald-800"
+                >
+                  Disclaimer
+                </Link>
                 .
               </span>
             </label>
@@ -764,7 +788,7 @@ export default function PostPropertyForm({
               disabled={submitting || !acceptedPolicies}
               className="mt-6 w-full rounded-lg bg-emerald-600 py-3 font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {submitting ? "Submitting..." : "+ List Property Free"}
+              {submitting ? "Submitting..." : "+ Post Free Ad"}
             </button>
           </form>
         </>
@@ -778,10 +802,11 @@ type InputProps = {
   value: string;
   placeholder?: string;
   required?: boolean;
+  list?: string;
   onChange: (value: string) => void;
 };
 
-function Input({ label, value, placeholder, required, onChange }: InputProps) {
+function Input({ label, value, placeholder, required, list, onChange }: InputProps) {
   return (
     <div>
       <label className="mb-1 block text-sm font-medium text-gray-700">{label}</label>
@@ -789,6 +814,7 @@ function Input({ label, value, placeholder, required, onChange }: InputProps) {
         value={value}
         placeholder={placeholder}
         required={required}
+        list={list}
         onChange={(e) => onChange(e.target.value)}
         className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none transition focus:border-emerald-500"
       />

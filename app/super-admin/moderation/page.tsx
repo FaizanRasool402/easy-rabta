@@ -279,14 +279,21 @@ export default function SuperAdminModerationPage() {
                       Proof
                     </p>
                     {item.paymentProof ? (
-                      <a
-                        href={mediaUrl(item.paymentProof)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="mt-1 inline-flex text-sm font-semibold text-emerald-300 underline"
-                      >
-                        View proof
-                      </a>
+                      <div className="mt-2">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={mediaUrl(item.paymentProof)}
+                          alt={`Payment proof for ${item.title}`}
+                          className="h-28 w-full rounded-xl border border-slate-700 bg-slate-950 object-contain"
+                        />
+                        <a
+                          href={mediaUrl(item.paymentProof)}
+                          download={`payment-proof-${item.id}.jpg`}
+                          className="mt-2 inline-flex text-sm font-semibold text-emerald-300 underline"
+                        >
+                          Download proof
+                        </a>
+                      </div>
                     ) : (
                       <p className="mt-1 text-sm font-semibold text-white">N/A</p>
                     )}
@@ -297,10 +304,19 @@ export default function SuperAdminModerationPage() {
                   <button
                     type="button"
                     onClick={() => verifyPayment(item.id)}
-                    disabled={verifyingId === item.id}
-                    className="rounded-xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
+                    disabled={
+                      verifyingId === item.id ||
+                      !item.paymentReference ||
+                      !item.paymentProof ||
+                      item.paymentStatus === "verified"
+                    }
+                    className="rounded-xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {verifyingId === item.id ? "Verifying..." : "Verify Paid Listing"}
+                    {item.paymentStatus === "verified"
+                      ? "Already Verified"
+                      : verifyingId === item.id
+                        ? "Verifying..."
+                        : "Verify Paid Listing"}
                   </button>
                   <button
                     type="button"

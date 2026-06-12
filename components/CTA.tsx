@@ -21,7 +21,7 @@ export default function CTA() {
             href="/post-property"
             className="inline-flex justify-center px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold border-2 border-white text-white hover:bg-white hover:text-emerald-600 transition text-sm sm:text-base"
           >
-            + List Property Free
+            + Post Free Ad
           </Link>
         </div>
       </div>

@@ -57,6 +57,8 @@ export default function DashboardShell({
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<AppAuthUser | null>(null);
+  const accountLabel =
+    user?.role === "dealer" ? "Property Dealer Dashboard" : "Property Owner Dashboard";
 
   useEffect(() => {
     async function loadUser() {
@@ -104,7 +106,7 @@ export default function DashboardShell({
           <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
             <aside className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm lg:sticky lg:top-24 lg:h-fit">
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-600">
-                My Account
+                {accountLabel}
               </p>
               <div className="mt-5 rounded-3xl border border-gray-200 bg-gray-50 p-4">
                 <div className="flex items-center gap-3">
@@ -178,7 +180,7 @@ export default function DashboardShell({
               <div className="flex flex-col gap-4 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm font-medium uppercase tracking-[0.22em] text-emerald-600">
-                    User Account
+                    {accountLabel}
                   </p>
                   <h1 className="mt-2 text-2xl font-bold text-gray-900 sm:text-3xl">
                     {title}

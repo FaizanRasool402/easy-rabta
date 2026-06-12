@@ -15,12 +15,20 @@ export default function PropertyImageGallery({
   className = "h-52 w-full object-cover",
 }: PropertyImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isOpen, setIsOpen] = useState(false);
   const safeImages = images.length > 0 ? images : ["/images/three.jpg"];
   const activeImage = safeImages[activeIndex] ?? safeImages[0];
 
   return (
     <div>
-      <ListingImage src={activeImage} alt={title} className={className} />
+      <button
+        type="button"
+        onClick={() => setIsOpen(true)}
+        className="block w-full cursor-zoom-in text-left"
+        aria-label={`Open ${title} image`}
+      >
+        <ListingImage src={activeImage} alt={title} className={className} />
+      </button>
       {safeImages.length > 1 ? (
         <div className="grid grid-cols-5 gap-1.5 bg-white p-2">
           {safeImages.map((image, index) => (
@@ -42,6 +50,28 @@ export default function PropertyImageGallery({
               />
             </button>
           ))}
+        </div>
+      ) : null}
+      {isOpen ? (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4"
+          onClick={() => setIsOpen(false)}
+        >
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              setIsOpen(false);
+            }}
+            className="absolute right-4 top-4 rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow"
+          >
+            Close
+          </button>
+          <ListingImage
+            src={activeImage}
+            alt={title}
+            className="max-h-[88vh] max-w-[92vw] rounded-lg object-contain"
+          />
         </div>
       ) : null}
     </div>

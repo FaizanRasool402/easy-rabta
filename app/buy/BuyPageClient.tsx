@@ -33,6 +33,7 @@ type BuyProperty = {
   images: string[];
   contactPhone?: string;
   isPaidListing?: boolean;
+  paymentStatus?: string;
 };
 
 type BuyPageFilters = {
@@ -58,6 +59,7 @@ type ApiProperty = {
   purpose?: string;
   contactPhone?: string;
   isPaidListing?: boolean;
+  paymentStatus?: string;
 };
 
 const API_BASE_URL =
@@ -169,7 +171,8 @@ export default function BuyPage({
           image: propertyGalleryImages(property.images)[0],
           images: propertyGalleryImages(property.images),
           contactPhone: property.contactPhone,
-          isPaidListing: Boolean(property.isPaidListing),
+          isPaidListing:
+            Boolean(property.isPaidListing) || property.paymentStatus === "verified",
         }));
 
         setApiProperties(normalized);
@@ -321,11 +324,24 @@ export default function BuyPage({
                     ))}
                   </datalist>
                   <SelectField
-                    label="Area"
+                    label="Neighborhood / Area"
                     value={area}
                     options={areaOptions}
                     onChange={setArea}
                   />
+                  <input
+                    type="search"
+                    value={area === "all" ? "" : area}
+                    onChange={(event) => setArea(event.target.value || "all")}
+                    list="buy-area-options"
+                    placeholder="Search neighborhood / area"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-emerald-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+                  />
+                  <datalist id="buy-area-options">
+                    {areaOptions.filter((option) => option !== "all").map((option) => (
+                      <option key={option} value={option} />
+                    ))}
+                  </datalist>
                   <SelectField
                     label="Property Type"
                     value={propertyType}
@@ -395,6 +411,11 @@ export default function BuyPage({
                           images={property.images}
                           title={property.title}
                         />
+                        {property.isPaidListing ? (
+                          <span className="absolute left-3 top-3 rounded-full bg-amber-400 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-amber-950 shadow">
+                            Premium
+                          </span>
+                        ) : null}
                         <button
                           type="button"
                           onClick={() => handleToggleSave(property)}
@@ -418,11 +439,6 @@ export default function BuyPage({
                         <p className="mt-3 text-xl font-extrabold text-emerald-700 dark:text-emerald-400">
                           {formatPrice(property.price)}
                         </p>
-                        {property.isPaidListing ? (
-                          <span className="mt-3 inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
-                            Paid Listing
-                          </span>
-                        ) : null}
                         <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-gray-700 dark:text-slate-200">
                           <span className="rounded bg-gray-100 px-2.5 py-1 dark:bg-slate-800">
                             {property.propertyType}

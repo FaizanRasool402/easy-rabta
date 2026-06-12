@@ -23,6 +23,7 @@ type PublicProperty = {
   images?: string[];
   contactPhone?: string;
   isPaidListing?: boolean;
+  paymentStatus?: string;
 };
 
 type ListingCard = {
@@ -72,7 +73,8 @@ export default function LatestListings() {
           image: propertyGalleryImages(property.images)[0],
           images: propertyGalleryImages(property.images),
           contactPhone: property.contactPhone,
-          isPaidListing: Boolean(property.isPaidListing),
+          isPaidListing:
+            Boolean(property.isPaidListing) || property.paymentStatus === "verified",
         }));
 
         setListings(normalized);
@@ -139,7 +141,7 @@ export default function LatestListings() {
                 </span>
                 {listing.isPaidListing ? (
                   <span className="absolute right-4 top-4 rounded-full bg-amber-400 px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-amber-950">
-                    Paid
+                    Premium
                   </span>
                 ) : null}
               </div>
