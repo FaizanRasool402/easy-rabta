@@ -46,9 +46,13 @@ export default function SuperAdminShell({
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<AppAuthUser | null>(null);
+  const [authStatus, setAuthStatus] = useState<"checking" | "allowed" | "blocked">(
+    "checking"
+  );
 
   useEffect(() => {
     async function loadUser() {
+      setAuthStatus("checking");
       try {
         const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
           credentials: "include",
@@ -56,17 +60,25 @@ export default function SuperAdminShell({
 
         if (!response.ok) {
           setUser(null);
+          setAuthStatus("blocked");
+          router.replace("/login?redirect=/super-admin");
           return;
         }
 
         const data = (await response.json()) as { user?: AppAuthUser };
-        if (data.user && !isSuperAdminUser(data.user)) {
+        if (!data.user || !isSuperAdminUser(data.user)) {
+          setUser(null);
+          setAuthStatus("blocked");
           router.replace("/dashboard");
           return;
         }
-        setUser(data.user ?? null);
+
+        setUser(data.user);
+        setAuthStatus("allowed");
       } catch {
         setUser(null);
+        setAuthStatus("blocked");
+        router.replace("/login?redirect=/super-admin");
       }
     }
 
@@ -83,6 +95,28 @@ export default function SuperAdminShell({
       router.push("/login?redirect=/super-admin");
       router.refresh();
     }
+  }
+
+  if (authStatus !== "allowed") {
+    return (
+      <>
+        <Navbar />
+        <main className="min-h-[calc(100vh-56px)] bg-slate-950 px-4 py-12 text-slate-100 sm:min-h-[calc(100vh-64px)]">
+          <section className="mx-auto max-w-xl rounded-[2rem] border border-slate-800 bg-slate-900 p-6 shadow-xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-400">
+              Super Admin
+            </p>
+            <h1 className="mt-3 text-2xl font-bold text-white">
+              Checking admin access
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-slate-300">
+              Super admin dashboard sirf admin credentials se login ke baad open
+              hoga.
+            </p>
+          </section>
+        </main>
+      </>
+    );
   }
 
   return (

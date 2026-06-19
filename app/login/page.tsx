@@ -7,11 +7,11 @@ import Navbar from "@/components/Navbar";
 import { isSuperAdminUser } from "@/lib/auth";
 
 type Mode = "login" | "register";
-type RegisterRole = "user" | "dealer";
+type RegisterRole = "user" | "owner" | "dealer";
 type AuthResponse = {
   message?: string;
   user?: {
-    role?: "user" | "dealer" | "super_admin";
+    role?: "user" | "owner" | "dealer" | "super_admin";
   };
 };
 
@@ -22,7 +22,11 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const initialMode = searchParams.get("mode") === "register" ? "register" : "login";
   const initialRegisterRole =
-    searchParams.get("role") === "dealer" ? "dealer" : "user";
+    searchParams.get("role") === "dealer"
+      ? "dealer"
+      : searchParams.get("role") === "owner"
+        ? "owner"
+        : "user";
   const [mode, setMode] = useState<Mode>(initialMode);
   const [registerRole, setRegisterRole] =
     useState<RegisterRole>(initialRegisterRole);
@@ -101,11 +105,15 @@ function LoginForm() {
               ? "Login"
               : registerRole === "dealer"
                 ? "Register as Dealer"
+                : registerRole === "owner"
+                  ? "Register as Property Owner"
                 : "Create account"}
           </h1>
           <p className="mt-2 text-sm text-gray-600">
             {mode === "register" && registerRole === "dealer"
               ? "Create your dealer account to manage property listings."
+              : mode === "register" && registerRole === "owner"
+                ? "Create your property owner account to post and manage listings."
               : "Enter your details to access your Easy Raabta account."}
           </p>
 
@@ -128,6 +136,7 @@ function LoginForm() {
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none transition focus:border-emerald-500"
                   >
                     <option value="user">Property Seeker</option>
+                    <option value="owner">Property Owner</option>
                     <option value="dealer">Dealer</option>
                   </select>
                 </div>
@@ -249,6 +258,8 @@ function LoginForm() {
                   ? "Login"
                   : registerRole === "dealer"
                     ? "Register as Dealer"
+                    : registerRole === "owner"
+                      ? "Register as Property Owner"
                     : "Register"}
             </button>
           </form>

@@ -1,4 +1,4 @@
-export type AppUserRole = "user" | "dealer" | "super_admin";
+export type AppUserRole = "user" | "owner" | "dealer" | "super_admin";
 
 export type AppAuthUser = {
   id?: string;

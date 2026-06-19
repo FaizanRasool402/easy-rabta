@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { FiShare2 } from "react-icons/fi";
 import DashboardShell from "@/components/DashboardShell";
 import { propertyCardImage } from "@/lib/propertyImage";
 
@@ -13,7 +14,7 @@ type AuthUser = {
   name?: string;
   email?: string;
   phone?: string;
-  role?: "user" | "dealer" | "super_admin";
+  role?: "user" | "owner" | "dealer" | "super_admin";
 };
 
 type PropertyRecord = {
@@ -119,6 +120,7 @@ export default function DashboardPage() {
   const [properties, setProperties] = useState<PropertyRecord[]>([]);
   const [deletingId, setDeletingId] = useState("");
   const [updatingId, setUpdatingId] = useState("");
+  const [visitorView, setVisitorView] = useState<"daily" | "monthly">("daily");
   const [dashboardError, setDashboardError] = useState("");
   const [propertiesError, setPropertiesError] = useState("");
 
@@ -261,6 +263,28 @@ export default function DashboardPage() {
     }
   }
 
+  async function shareProperty(property: PropertyRecord) {
+    const path = property.purpose === "rent" ? "/rent" : "/buy";
+    const url = `${window.location.origin}${path}?keyword=${encodeURIComponent(
+      property.title
+    )}`;
+    const shareData = {
+      title: property.title,
+      text: `Check this property: ${property.title}`,
+      url,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        return;
+      }
+
+      await navigator.clipboard.writeText(url);
+      setPropertiesError("Property share link copied.");
+    } catch {}
+  }
+
   const greetingName = useMemo(() => {
     if (!user?.name) return "User";
     return user.name.split(" ")[0];
@@ -287,6 +311,30 @@ export default function DashboardPage() {
       }),
     };
   });
+  const monthlyVisitorStats = Array.from({ length: 6 }, (_, index) => {
+    const date = new Date();
+    date.setMonth(date.getMonth() - (5 - index));
+    const key = date.toISOString().slice(0, 7);
+    const views = properties.reduce(
+      (sum, property) =>
+        sum +
+        property.dailyViews
+          .filter((item) => item.date.startsWith(key))
+          .reduce((monthSum, item) => monthSum + item.count, 0),
+      0
+    );
+
+    return {
+      date: key,
+      views,
+      label: date.toLocaleDateString("en-PK", {
+        month: "short",
+        year: "2-digit",
+      }),
+    };
+  });
+  const visitorStats =
+    visitorView === "daily" ? dailyVisitorStats : monthlyVisitorStats;
 
   if (authLoading) {
     return (
@@ -362,20 +410,54 @@ export default function DashboardPage() {
       </div>
 
       <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Daily Visitors</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {visitorView === "daily" ? "Daily Visitors" : "Monthly Visitors"}
+            </h2>
             <p className="mt-1 text-sm text-gray-600">
-              Last 7 days visitor count across your listings.
+              {visitorView === "daily"
+                ? "Last 7 days visitor count across your listings."
+                : "Last 6 months visitor count across your listings."}
             </p>
           </div>
-          <span className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
-            {dailyVisitorStats.reduce((sum, item) => sum + item.views, 0)} visits
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+              <button
+                type="button"
+                onClick={() => setVisitorView("daily")}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold ${
+                  visitorView === "daily"
+                    ? "bg-emerald-600 text-white"
+                    : "text-gray-600 hover:bg-white"
+                }`}
+              >
+                Daily
+              </button>
+              <button
+                type="button"
+                onClick={() => setVisitorView("monthly")}
+                className={`rounded-md px-3 py-1.5 text-xs font-semibold ${
+                  visitorView === "monthly"
+                    ? "bg-emerald-600 text-white"
+                    : "text-gray-600 hover:bg-white"
+                }`}
+              >
+                Monthly
+              </button>
+            </div>
+            <span className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+              {visitorStats.reduce((sum, item) => sum + item.views, 0)} visits
+            </span>
+          </div>
         </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-7">
-          {dailyVisitorStats.map((item) => (
+        <div
+          className={`mt-5 grid gap-3 ${
+            visitorView === "daily" ? "sm:grid-cols-7" : "sm:grid-cols-6"
+          }`}
+        >
+          {visitorStats.map((item) => (
             <div
               key={item.date}
               className="rounded-2xl border border-gray-200 bg-gray-50 px-3 py-4 text-center"
@@ -517,6 +599,14 @@ export default function DashboardPage() {
                           {updatingId === property.id ? "Updating..." : "Mark Sold"}
                         </button>
                       ) : null}
+                      <button
+                        type="button"
+                        onClick={() => shareProperty(property)}
+                        className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-white"
+                      >
+                        <FiShare2 size={15} />
+                        Share
+                      </button>
                     </div>
                   </div>
                 </div>

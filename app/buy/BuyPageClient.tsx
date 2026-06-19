@@ -1,7 +1,8 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { FiHeart } from "react-icons/fi";
+import { FiGrid, FiHeart, FiHome, FiList, FiSearch } from "react-icons/fi";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyInquiryButton from "@/components/PropertyInquiryButton";
@@ -43,7 +44,14 @@ type BuyPageFilters = {
   bedrooms: string;
   minPrice: string;
   maxPrice: string;
+  keyword: string;
 };
+
+type AppliedBuyFilters = BuyPageFilters & {
+  sortBy: string;
+};
+
+type ViewMode = "grid" | "list";
 
 type ApiProperty = {
   _id?: string;
@@ -143,7 +151,17 @@ export default function BuyPage({
   const [bedrooms, setBedrooms] = useState(initialFilters.bedrooms);
   const [minPrice, setMinPrice] = useState(initialFilters.minPrice);
   const [maxPrice, setMaxPrice] = useState(initialFilters.maxPrice);
+  const [keyword, setKeyword] = useState(initialFilters.keyword);
   const [sortBy, setSortBy] = useState("latest");
+  const [appliedFilters, setAppliedFilters] = useState<AppliedBuyFilters>({
+    ...initialFilters,
+    propertyType:
+      initialFilters.propertyType === "all"
+        ? "all"
+        : normalizePropertyType(initialFilters.propertyType),
+    sortBy: "latest",
+  });
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [apiProperties, setApiProperties] = useState<BuyProperty[]>([]);
   const [savedIds, setSavedIds] = useState<string[]>(() =>
     properties
@@ -224,24 +242,49 @@ export default function BuyPage({
 
   const filtered = useMemo(() => {
     const results = listingSource.filter((property) => {
-      if (city !== "all" && property.city !== city) return false;
-      if (area !== "all" && property.area !== area) return false;
-      if (propertyType !== "all" && property.propertyType !== propertyType)
+      if (appliedFilters.city !== "all" && property.city !== appliedFilters.city)
         return false;
-      if (bedrooms !== "all" && String(property.bedrooms) !== bedrooms) return false;
-      if (minPrice && property.price < Number(minPrice)) return false;
-      if (maxPrice && property.price > Number(maxPrice)) return false;
+      if (appliedFilters.area !== "all" && property.area !== appliedFilters.area)
+        return false;
+      if (
+        appliedFilters.propertyType !== "all" &&
+        property.propertyType !== appliedFilters.propertyType
+      )
+        return false;
+      if (
+        appliedFilters.bedrooms !== "all" &&
+        String(property.bedrooms) !== appliedFilters.bedrooms
+      )
+        return false;
+      if (appliedFilters.minPrice && property.price < Number(appliedFilters.minPrice))
+        return false;
+      if (appliedFilters.maxPrice && property.price > Number(appliedFilters.maxPrice))
+        return false;
+      if (appliedFilters.keyword.trim()) {
+        const searchText = [
+          property.title,
+          property.city,
+          property.area,
+          property.propertyType,
+          property.size,
+        ]
+          .join(" ")
+          .toLowerCase();
+        if (!searchText.includes(appliedFilters.keyword.trim().toLowerCase())) {
+          return false;
+        }
+      }
       return true;
     });
 
-    if (sortBy === "price_low")
+    if (appliedFilters.sortBy === "price_low")
       return [...results].sort((a, b) => Number(b.isPaidListing) - Number(a.isPaidListing) || a.price - b.price);
-    if (sortBy === "price_high")
+    if (appliedFilters.sortBy === "price_high")
       return [...results].sort((a, b) => Number(b.isPaidListing) - Number(a.isPaidListing) || b.price - a.price);
-    if (sortBy === "beds_high")
+    if (appliedFilters.sortBy === "beds_high")
       return [...results].sort((a, b) => Number(b.isPaidListing) - Number(a.isPaidListing) || b.bedrooms - a.bedrooms);
     return [...results].sort((a, b) => Number(b.isPaidListing) - Number(a.isPaidListing));
-  }, [area, bedrooms, city, listingSource, maxPrice, minPrice, propertyType, sortBy]);
+  }, [appliedFilters, listingSource]);
 
   function resetFilters() {
     setCity("all");
@@ -250,7 +293,31 @@ export default function BuyPage({
     setBedrooms("all");
     setMinPrice("");
     setMaxPrice("");
+    setKeyword("");
     setSortBy("latest");
+    setAppliedFilters({
+      city: "all",
+      area: "all",
+      propertyType: "all",
+      bedrooms: "all",
+      minPrice: "",
+      maxPrice: "",
+      keyword: "",
+      sortBy: "latest",
+    });
+  }
+
+  function handleSearch() {
+    setAppliedFilters({
+      city,
+      area,
+      propertyType,
+      bedrooms,
+      minPrice,
+      maxPrice,
+      keyword,
+      sortBy,
+    });
   }
 
   function handleToggleSave(property: BuyProperty) {
@@ -387,29 +454,87 @@ export default function BuyPage({
                       beds_high: "Bedrooms: High to Low",
                     }}
                   />
+
+                  <button
+                    type="button"
+                    onClick={handleSearch}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                  >
+                    <FiSearch size={16} />
+                    Search
+                  </button>
                 </div>
               </div>
             </aside>
 
             <div className="lg:col-span-8">
-              <p className="mb-4 text-sm font-semibold text-gray-700 dark:text-slate-200">
-                Showing {filtered.length} properties
-              </p>
+              <div className="mb-4 flex flex-col gap-2 rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-slate-700 dark:bg-slate-800 sm:flex-row">
+                <input
+                  type="search"
+                  value={keyword}
+                  onChange={(event) => setKeyword(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") handleSearch();
+                  }}
+                  placeholder="Search by keyword, city, area, or property type"
+                  className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none transition focus:border-emerald-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+                />
+                <button
+                  type="button"
+                  onClick={handleSearch}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                >
+                  <FiSearch size={16} />
+                  Search
+                </button>
+              </div>
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm font-semibold text-gray-700 dark:text-slate-200">
+                  Showing {filtered.length} properties
+                </p>
+                <div className="inline-flex w-fit rounded-lg border border-gray-200 bg-white p-1 dark:border-slate-700 dark:bg-slate-800">
+                  <ViewButton
+                    active={viewMode === "grid"}
+                    icon={<FiGrid size={15} />}
+                    label="Grid"
+                    onClick={() => setViewMode("grid")}
+                  />
+                  <ViewButton
+                    active={viewMode === "list"}
+                    icon={<FiList size={15} />}
+                    label="Rows"
+                    onClick={() => setViewMode("list")}
+                  />
+                </div>
+              </div>
               {filtered.length === 0 ? (
                 <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center text-gray-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300">
                   No properties found for selected filters.
                 </section>
               ) : (
-                <section className="grid gap-5 md:grid-cols-2">
+                <section
+                  className={
+                    viewMode === "grid" ? "grid gap-5 md:grid-cols-2" : "space-y-5"
+                  }
+                >
                   {filtered.map((property) => (
                     <article
                       key={property.id}
-                      className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900"
+                      className={`overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 ${
+                        viewMode === "list"
+                          ? "md:grid md:grid-cols-[280px_minmax(0,1fr)]"
+                          : ""
+                      }`}
                     >
                       <div className="relative">
                         <PropertyImageGallery
                           images={property.images}
                           title={property.title}
+                          className={
+                            viewMode === "list"
+                              ? "h-64 w-full object-cover md:h-full"
+                              : "h-52 w-full object-cover"
+                          }
                         />
                         {property.isPaidListing ? (
                           <span className="absolute left-3 top-3 rounded-full bg-amber-400 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.12em] text-amber-950 shadow">
@@ -441,6 +566,7 @@ export default function BuyPage({
                         </p>
                         <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-gray-700 dark:text-slate-200">
                           <span className="rounded bg-gray-100 px-2.5 py-1 dark:bg-slate-800">
+                            <FiHome className="mr-1 inline" size={13} />
                             {property.propertyType}
                           </span>
                           <span className="rounded bg-gray-100 px-2.5 py-1 dark:bg-slate-800">
@@ -467,6 +593,33 @@ export default function BuyPage({
       </main>
       <Footer />
     </>
+  );
+}
+
+function ViewButton({
+  active,
+  icon,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  icon: ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+        active
+          ? "bg-emerald-600 text-white"
+          : "text-gray-600 hover:bg-gray-100 dark:text-slate-200 dark:hover:bg-slate-700"
+      }`}
+    >
+      {icon}
+      {label}
+    </button>
   );
 }
 

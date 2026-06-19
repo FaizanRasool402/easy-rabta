@@ -39,6 +39,7 @@ export default async function RentPage({
     bedrooms: getParam(params, "bedrooms", "all"),
     minPrice: getParam(params, "priceMin", ""),
     maxPrice: getParam(params, "priceMax", ""),
+    keyword: getParam(params, "keyword", ""),
   };
 
   return (

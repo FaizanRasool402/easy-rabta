@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import SuperAdminShell from "@/components/SuperAdminShell";
+import { isSuperAdminUser } from "@/lib/auth";
 import {
   buildPropertyFlags,
   formatPrice,
@@ -28,6 +29,7 @@ const API_BASE_URL =
 type AuthUser = {
   name?: string;
   email?: string;
+  role?: "user" | "owner" | "dealer" | "super_admin";
 };
 
 export default function SuperAdminPage() {
@@ -38,15 +40,23 @@ export default function SuperAdminPage() {
   useEffect(() => {
     async function loadPortal() {
       try {
-        const [authResponse, propertyResponse] = await Promise.all([
-          fetch(`${API_BASE_URL}/api/auth/me`, { credentials: "include" }),
-          fetch(`${API_BASE_URL}/api/properties`, { credentials: "include" }),
-        ]);
+        const authResponse = await fetch(`${API_BASE_URL}/api/auth/me`, {
+          credentials: "include",
+        });
 
-        if (authResponse.ok) {
-          const authData = (await authResponse.json()) as { user?: AuthUser };
-          setUser(authData.user ?? null);
+        if (!authResponse.ok) {
+          return;
         }
+
+        const authData = (await authResponse.json()) as { user?: AuthUser };
+        if (!isSuperAdminUser(authData.user)) {
+          return;
+        }
+
+        setUser(authData.user ?? null);
+        const propertyResponse = await fetch(`${API_BASE_URL}/api/properties`, {
+          credentials: "include",
+        });
 
         if (propertyResponse.ok) {
           const propertyData = (await propertyResponse.json()) as {

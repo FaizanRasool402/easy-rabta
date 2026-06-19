@@ -2,6 +2,7 @@
 
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { areasByCity, cities } from "@/components/Hero";
 import { isSuperAdminUser } from "@/lib/auth";
 import { contactPhoneDisplay, contactPhoneHref, whatsappNumber } from "@/lib/contact";
@@ -36,7 +37,6 @@ type FormState = {
 
 const MAX_IMAGES = 5;
 const MAX_VIDEOS = 2;
-const MAX_IMAGE_SIZE_MB = 3;
 const MAX_VIDEO_SIZE_MB = 50;
 const TAG_OPTIONS = [
   "featured",
@@ -55,10 +55,6 @@ const PAYMENT_ACCOUNT = {
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
 
-function bytesToMb(bytes: number) {
-  return bytes / (1024 * 1024);
-}
-
 function parseResponseMessage(rawText: string) {
   if (!rawText) return {};
 
@@ -76,6 +72,7 @@ type PostPropertyFormProps = {
 export default function PostPropertyForm({
   withinDashboard = false,
 }: PostPropertyFormProps) {
+  const router = useRouter();
   const [form, setForm] = useState<FormState>({
     title: "",
     purpose: "sell",
@@ -147,7 +144,7 @@ export default function PostPropertyForm({
           user?: {
             name?: string;
             phone?: string;
-            role?: "user" | "super_admin";
+            role?: "user" | "owner" | "dealer" | "super_admin";
           };
         };
 
@@ -184,17 +181,6 @@ export default function PostPropertyForm({
       return;
     }
 
-    const oversizedImage = selected.find(
-      (file) => bytesToMb(file.size) > MAX_IMAGE_SIZE_MB
-    );
-    if (oversizedImage) {
-      setError(
-        `Each image must be ${MAX_IMAGE_SIZE_MB}MB or less. "${oversizedImage.name}" is too large.`
-      );
-      event.target.value = "";
-      return;
-    }
-
     setError("");
     setImages((prev) => [...prev, ...selected]);
     event.target.value = "";
@@ -212,7 +198,7 @@ export default function PostPropertyForm({
     }
 
     const oversizedVideo = selected.find(
-      (file) => bytesToMb(file.size) > MAX_VIDEO_SIZE_MB
+      (file) => file.size / (1024 * 1024) > MAX_VIDEO_SIZE_MB
     );
     if (oversizedVideo) {
       setError(
@@ -332,6 +318,9 @@ export default function PostPropertyForm({
       setVideos([]);
       setPaymentProof(null);
       setAcceptedPolicies(false);
+      window.setTimeout(() => {
+        router.push("/");
+      }, 1400);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Network error. Please try again.";
@@ -631,7 +620,7 @@ export default function PostPropertyForm({
                   Images ({images.length}/{MAX_IMAGES})
                 </label>
                 <p className="mb-2 text-xs text-gray-500">
-                  Up to {MAX_IMAGES} images, {MAX_IMAGE_SIZE_MB}MB each.
+                  Up to {MAX_IMAGES} images. Large photos will be resized automatically.
                 </p>
                 <input
                   type="file"
