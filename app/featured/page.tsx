@@ -465,6 +465,11 @@ export default function FeaturedPage() {
                           <PropertyInquiryButton
                             propertyTitle={propertyItem.title}
                             contactPhone={propertyItem.contactPhone}
+                            shareUrl={
+                              propertyItem.inquiryId
+                                ? `/properties/${propertyItem.inquiryId}`
+                                : undefined
+                            }
                           />
                         </div>
                       </article>

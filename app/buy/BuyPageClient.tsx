@@ -581,6 +581,11 @@ export default function BuyPage({
                         <PropertyInquiryButton
                           propertyTitle={property.title}
                           contactPhone={property.contactPhone}
+                          shareUrl={
+                            property.inquiryId
+                              ? `/properties/${property.inquiryId}`
+                              : undefined
+                          }
                         />
                       </div>
                     </article>

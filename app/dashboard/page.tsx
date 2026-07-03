@@ -264,9 +264,8 @@ export default function DashboardPage() {
   }
 
   async function shareProperty(property: PropertyRecord) {
-    const path = property.purpose === "rent" ? "/rent" : "/buy";
-    const url = `${window.location.origin}${path}?keyword=${encodeURIComponent(
-      property.title
+    const url = `${window.location.origin}/properties/${encodeURIComponent(
+      property.id
     )}`;
     const shareData = {
       title: property.title,

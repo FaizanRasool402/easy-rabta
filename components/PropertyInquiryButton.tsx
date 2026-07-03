@@ -7,11 +7,13 @@ import { FiPhone, FiShare2 } from "react-icons/fi";
 type PropertyInquiryButtonProps = {
   propertyTitle: string;
   contactPhone?: string;
+  shareUrl?: string;
 };
 
 export default function PropertyInquiryButton({
   propertyTitle,
   contactPhone,
+  shareUrl,
 }: PropertyInquiryButtonProps) {
   const [copied, setCopied] = useState(false);
 
@@ -23,11 +25,13 @@ export default function PropertyInquiryButton({
   const hasContactPhone = Boolean(contactPhone);
 
   async function handleShare() {
-    const shareUrl = window.location.href;
+    const resolvedShareUrl = shareUrl
+      ? new URL(shareUrl, window.location.origin).toString()
+      : window.location.href;
     const shareData = {
       title: propertyTitle,
       text: `Check this property: ${propertyTitle}`,
-      url: shareUrl,
+      url: resolvedShareUrl,
     };
 
     try {
@@ -36,7 +40,7 @@ export default function PropertyInquiryButton({
         return;
       }
 
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(resolvedShareUrl);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {}

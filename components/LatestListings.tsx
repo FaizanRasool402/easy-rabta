@@ -28,6 +28,7 @@ type PublicProperty = {
 
 type ListingCard = {
   id: string;
+  shareUrl?: string;
   title: string;
   city: string;
   area: string;
@@ -62,6 +63,7 @@ export default function LatestListings() {
         const data = (await response.json()) as { properties?: PublicProperty[] };
         const normalized: ListingCard[] = (data.properties ?? []).slice(0, 6).map((property, index) => ({
           id: property._id ?? `listing-${index}`,
+          shareUrl: property._id ? `/properties/${property._id}` : undefined,
           title: property.title ?? "Untitled property",
           city: property.city ?? "Unknown city",
           area: property.area ?? "Area not provided",
@@ -174,6 +176,7 @@ export default function LatestListings() {
                 <PropertyInquiryButton
                   propertyTitle={listing.title}
                   contactPhone={listing.contactPhone}
+                  shareUrl={listing.shareUrl}
                 />
               </div>
             </article>
