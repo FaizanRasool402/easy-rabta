@@ -49,18 +49,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Force light theme always (same as live Easy Raabta branding).
   const themeScript = `(() => {
     try {
-      const storedTheme = localStorage.getItem("theme");
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const shouldUseDark = storedTheme ? storedTheme === "dark" : prefersDark;
-      document.documentElement.classList.toggle("dark", shouldUseDark);
-      document.documentElement.classList.toggle("light", !shouldUseDark);
+      localStorage.removeItem("theme");
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
     } catch {}
   })();`;
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="light" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/icon.png" type="image/png" sizes="512x512" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />

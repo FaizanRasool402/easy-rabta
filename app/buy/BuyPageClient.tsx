@@ -6,7 +6,7 @@ import { FiGrid, FiHeart, FiHome, FiList, FiSearch } from "react-icons/fi";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyInquiryButton from "@/components/PropertyInquiryButton";
-import { areasByCity, cities } from "@/components/Hero";
+import { areasByCity, cities } from "@/lib/locations";
 import { contactPhoneDisplay } from "@/lib/contact";
 import {
   normalizePropertyType,

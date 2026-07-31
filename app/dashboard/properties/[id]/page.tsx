@@ -4,7 +4,13 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import DashboardShell from "@/components/DashboardShell";
-import { areasByCity, cities } from "@/components/Hero";
+import {
+  API_BASE_URL,
+  networkErrorMessage,
+  propertyUploadFetch,
+} from "@/lib/apiClient";
+import { compressImageFile, compressImageFiles } from "@/lib/imageCompress";
+import { areasByCity, cities } from "@/lib/locations";
 import {
   isBedroomPropertyType,
   isCoveredAreaPropertyType,
@@ -13,9 +19,6 @@ import {
   propertyTypes,
   type PropertyType,
 } from "@/lib/propertyTypes";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
 
 type PropertyDetail = {
   _id: string;
@@ -222,16 +225,17 @@ export default function PropertyDetailPage() {
       });
       formData.append("existingImages", JSON.stringify(property?.images ?? []));
       formData.append("existingVideos", JSON.stringify(property?.videos ?? []));
-      newImages.forEach((file) => formData.append("images", file));
+      const optimizedImages = await compressImageFiles(newImages);
+      optimizedImages.forEach((file) => formData.append("images", file));
       if (paymentProof) {
-        formData.append("paymentProof", paymentProof);
+        formData.append("paymentProof", await compressImageFile(paymentProof));
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/properties/${propertyId}`, {
-        method: "PUT",
-        credentials: "include",
-        body: formData,
-      });
+      const response = await propertyUploadFetch(
+        `/api/properties/${propertyId}`,
+        formData,
+        "PUT"
+      );
 
       const data = (await response.json()) as {
         message?: string;
@@ -251,8 +255,8 @@ export default function PropertyDetailPage() {
       }
 
       setMessage(data.message ?? "Property updated successfully.");
-    } catch {
-      setError("Property update failed.");
+    } catch (error) {
+      setError(networkErrorMessage(error));
     } finally {
       setSaving(false);
     }

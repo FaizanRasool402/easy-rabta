@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FiChevronDown, FiMenu, FiX } from "react-icons/fi";
+import { API_BASE_URL, clearAuthCache, fetchCurrentUser } from "@/lib/apiClient";
 import { isSuperAdminUser, type AppAuthUser } from "@/lib/auth";
 
 const navLinks = [
@@ -15,9 +16,6 @@ const navLinks = [
   { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
 ];
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
 
 export default function Navbar() {
   const router = useRouter();
@@ -31,22 +29,14 @@ export default function Navbar() {
   useEffect(() => {
     const controller = new AbortController();
 
-    async function getCurrentUser() {
+    async function loadUser() {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
-          credentials: "include",
-          signal: controller.signal,
-        });
-
-        if (!response.ok) {
-          setAuthUser(null);
-          return;
-        }
-
-        const data = (await response.json()) as { user?: AppAuthUser };
-        setAuthUser(data.user ?? null);
+        const user = await fetchCurrentUser({ signal: controller.signal });
+        setAuthUser(user);
       } catch {
-        setAuthUser(null);
+        if (!controller.signal.aborted) {
+          setAuthUser(null);
+        }
       }
     }
 
@@ -57,8 +47,8 @@ export default function Navbar() {
         }
     ).requestIdleCallback;
     const timerId = ric
-      ? ric(() => getCurrentUser())
-      : window.setTimeout(getCurrentUser, 1);
+      ? ric(() => loadUser())
+      : window.setTimeout(loadUser, 1);
 
     return () => {
       controller.abort();
@@ -82,6 +72,7 @@ export default function Navbar() {
         credentials: "include",
       });
     } finally {
+      clearAuthCache();
       setAuthUser(null);
       setProfileMenuOpen(false);
       setMobileMenuOpen(false);

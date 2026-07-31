@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PropertyInquiryButton from "@/components/PropertyInquiryButton";
-import { cities } from "@/components/Hero";
+import { cities } from "@/lib/locations";
 import {
   normalizePropertyType,
   propertyTypes,

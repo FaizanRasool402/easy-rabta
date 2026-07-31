@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Disable dark: utilities — site is light-only like live easyraabta.com */
+@custom-variant dark (&:where(.never-dark));
+
 :root {
   --background: #f5faf8;
   --foreground: #0f172a;

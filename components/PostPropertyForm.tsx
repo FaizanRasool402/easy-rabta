@@ -3,9 +3,15 @@
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { areasByCity, cities } from "@/components/Hero";
+import {
+  fetchCurrentUser,
+  networkErrorMessage,
+  propertyUploadFetch,
+} from "@/lib/apiClient";
 import { isSuperAdminUser } from "@/lib/auth";
+import { compressImageFile, compressImageFiles } from "@/lib/imageCompress";
 import { contactPhoneDisplay, contactPhoneHref, whatsappNumber } from "@/lib/contact";
+import { areasByCity, cities } from "@/lib/locations";
 import {
   isBedroomPropertyType,
   isCoveredAreaPropertyType,
@@ -52,9 +58,6 @@ const PAYMENT_ACCOUNT = {
   title: "EasyRaabta.com",
   account: "Contact admin for bank account number",
 };
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
-
 function parseResponseMessage(rawText: string) {
   if (!rawText) return {};
 
@@ -132,28 +135,18 @@ export default function PostPropertyForm({
   useEffect(() => {
     async function loadUser() {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
-          credentials: "include",
-        });
-        if (!response.ok) {
+        const user = await fetchCurrentUser();
+        if (!user) {
           setIsLoggedIn(false);
           return;
         }
 
-        const data = (await response.json()) as {
-          user?: {
-            name?: string;
-            phone?: string;
-            role?: "user" | "owner" | "dealer" | "super_admin";
-          };
-        };
-
         setIsLoggedIn(true);
-        setIsSuperAdmin(isSuperAdminUser(data.user));
+        setIsSuperAdmin(isSuperAdminUser(user));
         setForm((prev) => ({
           ...prev,
-          contactName: data.user?.name ?? prev.contactName,
-          contactPhone: data.user?.phone ?? prev.contactPhone,
+          contactName: user.name ?? prev.contactName,
+          contactPhone: user.phone ?? prev.contactPhone,
         }));
       } catch {
         setIsLoggedIn(false);
@@ -272,17 +265,18 @@ export default function PostPropertyForm({
       formData.append("contactPhone", form.contactPhone);
       formData.append("paymentReference", form.paymentReference);
 
-      images.forEach((file) => formData.append("images", file));
+      const optimizedImages = await compressImageFiles(images);
+      optimizedImages.forEach((file) => formData.append("images", file));
       videos.forEach((file) => formData.append("videos", file));
       if (paymentProof) {
-        formData.append("paymentProof", paymentProof);
+        formData.append("paymentProof", await compressImageFile(paymentProof));
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/properties`, {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
+      const response = await propertyUploadFetch(
+        "/api/properties",
+        formData,
+        "POST"
+      );
 
       const rawText = await response.text();
       const data = parseResponseMessage(rawText);
@@ -322,9 +316,7 @@ export default function PostPropertyForm({
         router.push("/");
       }, 1400);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Network error. Please try again.";
-      setError(message);
+      setError(networkErrorMessage(error));
     } finally {
       setSubmitting(false);
     }

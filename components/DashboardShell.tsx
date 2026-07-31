@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import { API_BASE_URL, clearAuthCache, fetchCurrentUser } from "@/lib/apiClient";
 import { isSuperAdminUser, type AppAuthUser } from "@/lib/auth";
 import {
   FiGrid,
@@ -21,9 +22,6 @@ type DashboardShellProps = {
   action?: React.ReactNode;
   children: React.ReactNode;
 };
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000";
 
 const navItems = [
   { href: "/dashboard", label: "My Properties", icon: FiGrid },
@@ -63,21 +61,12 @@ export default function DashboardShell({
   useEffect(() => {
     async function loadUser() {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          setUser(null);
-          return;
-        }
-
-        const data = (await response.json()) as { user?: AppAuthUser };
-        if (isSuperAdminUser(data.user)) {
+        const nextUser = await fetchCurrentUser();
+        if (isSuperAdminUser(nextUser)) {
           router.replace("/super-admin");
           return;
         }
-        setUser(data.user ?? null);
+        setUser(nextUser);
       } catch {
         setUser(null);
       }
@@ -93,6 +82,7 @@ export default function DashboardShell({
         credentials: "include",
       });
     } finally {
+      clearAuthCache();
       router.push("/login");
       router.refresh();
     }
